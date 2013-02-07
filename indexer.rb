@@ -44,6 +44,7 @@ class Indexer
       # update DOR object's workflow datastream??   for harvest?  for indexing?
     }
     solr_client.commit
+    logger.info("Finished processing: Solr commit returned.")
   end
   
   # return Array of druids contained in the OAI harvest indicated by OAI params in yml configuration file

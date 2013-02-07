@@ -31,8 +31,16 @@ class Indexer
   #   create a Solr document for each druid suitable for SearchWorks
   #   write the result to the SearchWorks Solr index
   def harvest_and_index
-    druids.each { |id|  
-      solr_client.add(solr_doc(id))
+    druids.each { |druid|  
+      if blacklist.include?(druid)
+        logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
+        next
+      end
+      if whitelist.empty? || whitelist.include?(druid)
+        logger.info("Druid #{druid} is on the whitelist") if whitelist.include?(druid)
+        solr_client.add(solr_doc(druid))
+        logger.info("Just created Solr doc for #{druid}")
+      end
       # update DOR object's workflow datastream??   for harvest?  for indexing?
     }
     solr_client.commit
@@ -66,7 +74,7 @@ class Indexer
   def blacklist
     # avoid trying to load the file multiple times
     if !@blacklist && !@loaded_blacklist
-      @blacklist = load_blacklist(config.blacklist)
+      @blacklist = load_blacklist(config.blacklist) if config.blacklist
     end
     @blacklist ||= []
   end
@@ -75,7 +83,7 @@ class Indexer
   def whitelist
     # avoid trying to load the file multiple times
     if !@whitelist && !@loaded_whitelist
-      @whitelist = load_whitelist(config.whitelist)
+      @whitelist = load_whitelist(config.whitelist) if config.whitelist
     end
     @whitelist ||= []
   end
@@ -104,6 +112,7 @@ class Indexer
         @blacklist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
       }
       @loaded_blacklist = true
+      @blacklist
     end
   rescue
     msg = "Unable to find blacklist at " + path
@@ -122,6 +131,7 @@ class Indexer
         @whitelist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
       }
       @loaded_whitelist = true
+      @whitelist
     end
   rescue
     msg = "Unable to find whitelist at " + path

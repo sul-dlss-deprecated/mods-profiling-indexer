@@ -18,7 +18,7 @@ purl: http://purl.stanford.edu
 
 # name of file containing druids that will NOT be profiled even if they are harvested via OAI
 #  either give absolute directory, or directory relative to where the command will be executed
-#blacklist:
+blacklist: config/bnf_images_w_old_mods_druids.txt
 
 # name of file containing druids that WILL be profiled (all others will be ignored)
 #  either give absolute directory, or directory relative to where the command will be executed

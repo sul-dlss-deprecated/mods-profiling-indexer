@@ -34,6 +34,12 @@ oai_repository_url: https://dor-oaiprovider-prod.stanford.edu/oai
 default_set: is_governed_by_ht275vw4351
 # is_governed_by_hy787xj5878 --> Archives Parliamentaire
 
+# name of file containing druids that will NOT be profiled even if they are harvested via OAI
+#blacklist:
+  
+# name of file containing druids that WILL be profiled (all others will be ignored)
+#whitelist:
+
 # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
 http_options:
   ssl:
@@ -50,4 +56,4 @@ solr:
 
 # the value of the "collection" field in the Solr document (a way to query this OAI harvest only)
 # default is the default_set
-coll_fld_val: bnf_images
+coll_fld_val: bnf_images1

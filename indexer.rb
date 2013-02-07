@@ -62,6 +62,24 @@ class Indexer
     @solr_client ||= RSolr.connect(config.solr.to_hash)
   end
   
+  # @return an Array of druids ('oo000oo0000') that should NOT be processed
+  def blacklist
+    # avoid trying to load the file multiple times
+    if !@blacklist && !@loaded_blacklist
+      @blacklist = load_blacklist(config.blacklist)
+    end
+    @blacklist ||= []
+  end
+  
+  # @return an Array of druids ('oo000oo0000') that should NOT be processed
+  def whitelist
+    # avoid trying to load the file multiple times
+    if !@whitelist && !@loaded_whitelist
+      @whitelist = load_whitelist(config.whitelist)
+    end
+    @whitelist ||= []
+  end
+  
   protected #---------------------------------------------------------------------
 
   def harvestdor_client
@@ -74,6 +92,41 @@ class Indexer
   def load_logger(log_dir, log_name)
     Dir.mkdir(log_dir) unless File.directory?(log_dir) 
     @logger ||= Logger.new(File.join(log_dir, log_name), 'daily')
+  end
+  
+  # populate @blacklist as an Array of druids ('oo000oo0000') that will NOT be processed
+  #  by reading the File at the indicated path
+  # @param path - path of file containing a list of druids
+  def load_blacklist path
+    if path && !@loaded_blacklist
+      @blacklist = []
+      f = File.open(path).each_line { |line|
+        @blacklist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
+      }
+      @loaded_blacklist = true
+    end
+  rescue
+    msg = "Unable to find blacklist at " + path
+    logger.fatal msg
+    raise msg
+  end
+    
+  # populate @blacklist as an Array of druids ('oo000oo0000') that WILL be processed
+  #  (unless a druid is also on the blacklist)
+  #  by reading the File at the indicated path
+  # @param path - path of file containing a list of druids
+  def load_whitelist path
+    if path && !@loaded_whitelist
+      @blacklist = []
+      f = File.open(path).each_line { |line|
+        @whitelist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
+      }
+      @loaded_whitelist = true
+    end
+  rescue
+    msg = "Unable to find whitelist at " + path
+    logger.fatal msg
+    raise msg
   end
     
 end

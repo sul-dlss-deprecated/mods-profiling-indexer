@@ -117,7 +117,7 @@ class Indexer
   # @param path - path of file containing a list of druids
   def load_whitelist path
     if path && !@loaded_whitelist
-      @blacklist = []
+      @whitelist = []
       f = File.open(path).each_line { |line|
         @whitelist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
       }

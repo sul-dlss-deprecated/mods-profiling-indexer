@@ -31,18 +31,27 @@ class Indexer
   #   create a Solr document for each druid suitable for SearchWorks
   #   write the result to the SearchWorks Solr index
   def harvest_and_index
-    druids.each { |druid|  
-      if blacklist.include?(druid)
-        logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
-        next
-      end
-      if whitelist.empty? || whitelist.include?(druid)
-        logger.info("Druid #{druid} is on the whitelist") if whitelist.include?(druid)
+    if !whitelist.empty?
+      whitelist.each { |druid|
+        if blacklist.include?(druid)
+          logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
+          next
+        end
+        solr_client.add(solr_doc(druid))
+        logger.info("Just created Solr doc for #{druid} on whitelist")
+        # TODO: update DOR object's workflow datastream??
+      }
+    else
+      druids.each { |druid|  
+        if blacklist.include?(druid)
+          logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
+          next
+        end
         solr_client.add(solr_doc(druid))
         logger.info("Just created Solr doc for #{druid}")
-      end
-      # update DOR object's workflow datastream??   for harvest?  for indexing?
-    }
+        # TODO: update DOR object's workflow datastream??
+      }
+    end
     solr_client.commit
     logger.info("Finished processing: Solr commit returned.")
   end

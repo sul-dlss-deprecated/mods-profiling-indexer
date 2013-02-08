@@ -58,14 +58,10 @@ describe Indexer do
       indexer = Indexer.new(@config_yml_path, {:whitelist => @whitelist_path})
       hdor_client = indexer.send(:harvestdor_client)
       indexer.stub(:solr_doc).with('oo000oo0000').and_return({:id => 'oo000oo0000', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo111oo1111').and_return({:id => 'oo111oo1111', :field => 'val' })
       indexer.stub(:solr_doc).with('oo222oo2222').and_return({:id => 'oo222oo2222', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo333oo3333').and_return({:id => 'oo333oo3333', :field => 'val' })
-      hdor_client.should_receive(:druids_via_oai).and_return(['oo000oo0000', 'oo111oo1111', 'oo222oo2222', 'oo333oo3333'])
+      hdor_client.should_not_receive(:druids_via_oai)
       indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo000oo0000'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo111oo1111'}))
       indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo222oo2222'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo333oo3333'}))
       indexer.solr_client.should_receive(:commit)
       indexer.harvest_and_index
     end
@@ -73,14 +69,8 @@ describe Indexer do
       indexer = Indexer.new(@config_yml_path, {:blacklist => @blacklist_path, :whitelist => @whitelist_path})
       hdor_client = indexer.send(:harvestdor_client)
       indexer.stub(:solr_doc).with('oo000oo0000').and_return({:id => 'oo000oo0000', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo111oo1111').and_return({:id => 'oo111oo1111', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo222oo2222').and_return({:id => 'oo222oo2222', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo333oo3333').and_return({:id => 'oo333oo3333', :field => 'val' })
-      hdor_client.should_receive(:druids_via_oai).and_return(['oo000oo0000', 'oo111oo1111', 'oo222oo2222', 'oo333oo3333'])
+      hdor_client.should_not_receive(:druids_via_oai)
       indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo000oo0000'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo111oo1111'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo222oo2222'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo333oo3333'}))
       indexer.solr_client.should_receive(:commit)
       indexer.harvest_and_index
     end

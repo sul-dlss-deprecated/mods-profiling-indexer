@@ -5,9 +5,10 @@ To set up:
 See  config/bnf-images.yml for an example.
 
 You will want to copy that file and change the following settings:
-1. log_name
-2. default_set
-3. coll_fld_val  (at bottom)
+1. coll_fld_val
+2. log_name
+3. default_set
+4. blacklist or whitelist if you are using them
 
 I suggest you use sul-solr-test-a/solr/mods_profiler  as your Solr index, as the number of possible fields required Chris Beer to tweak a tomcat parameter.
 

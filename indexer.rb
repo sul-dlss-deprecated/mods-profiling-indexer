@@ -28,8 +28,8 @@ class Indexer
   
   # per this Indexer's config options 
   #  harvest the druids via OAI
-  #   create a Solr document for each druid suitable for SearchWorks
-  #   write the result to the SearchWorks Solr index
+  #   create a Solr profiling document for each druid
+  #   write the result to the Solr index
   def harvest_and_index
     if whitelist.empty?
       druids.each { |druid| index druid }

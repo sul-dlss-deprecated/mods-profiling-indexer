@@ -31,26 +31,10 @@ class Indexer
   #   create a Solr document for each druid suitable for SearchWorks
   #   write the result to the SearchWorks Solr index
   def harvest_and_index
-    if !whitelist.empty?
-      whitelist.each { |druid|
-        if blacklist.include?(druid)
-          logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
-          next
-        end
-        solr_client.add(solr_doc(druid))
-        logger.info("Just created Solr doc for #{druid} on whitelist")
-        # TODO: update DOR object's workflow datastream??
-      }
+    if whitelist.empty?
+      druids.each { |druid| index druid }
     else
-      druids.each { |druid|  
-        if blacklist.include?(druid)
-          logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
-          next
-        end
-        solr_client.add(solr_doc(druid))
-        logger.info("Just created Solr doc for #{druid}")
-        # TODO: update DOR object's workflow datastream??
-      }
+      whitelist.each { |druid| index druid }
     end
     solr_client.commit
     logger.info("Finished processing: Solr commit returned.")
@@ -102,6 +86,18 @@ class Indexer
 
   def harvestdor_client
     @harvestdor_client ||= Harvestdor::Client.new({:config_yml_path => @yml_path})
+  end
+  
+  # create Solr doc for the druid and add it to Solr, unless it is on the blacklist.  
+  #  NOTE: no Solr commit performed
+  def index druid
+    if blacklist.include?(druid)
+      logger.info("Druid #{druid} is on the blacklist and will have no Solr doc created")
+    else
+      solr_client.add(solr_doc(druid))
+      logger.info("Just created Solr doc for #{druid}")
+      # TODO: update DOR object's workflow datastream??
+    end
   end
   
   # Global, memoized, lazy initialized instance of a logger

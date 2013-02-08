@@ -117,17 +117,9 @@ class Indexer
   # @param path - path of file containing a list of druids
   def load_blacklist path
     if path && !@loaded_blacklist
-      @blacklist = []
-      f = File.open(path).each_line { |line|
-        @blacklist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
-      }
       @loaded_blacklist = true
-      @blacklist
+      @blacklist = load_id_list path
     end
-  rescue
-    msg = "Unable to find blacklist at " + path
-    logger.fatal msg
-    raise msg
   end
     
   # populate @blacklist as an Array of druids ('oo000oo0000') that WILL be processed
@@ -136,15 +128,25 @@ class Indexer
   # @param path - path of file containing a list of druids
   def load_whitelist path
     if path && !@loaded_whitelist
-      @whitelist = []
-      f = File.open(path).each_line { |line|
-        @whitelist << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
-      }
       @loaded_whitelist = true
-      @whitelist
+      @whitelist = load_id_list path
+    end
+  end
+    
+  # return an Array of druids ('oo000oo0000')
+  #   populated by reading the File at the indicated path
+  # @param path - path of file containing a list of druids
+  # @return an Array of druids
+  def load_id_list path
+    if path 
+      list = []
+      f = File.open(path).each_line { |line|
+        list << line.gsub(/\s+/, '') if !line.gsub(/\s+/, '').empty?
+      }
+      list
     end
   rescue
-    msg = "Unable to find whitelist at " + path
+    msg = "Unable to find list of druids at " + path
     logger.fatal msg
     raise msg
   end

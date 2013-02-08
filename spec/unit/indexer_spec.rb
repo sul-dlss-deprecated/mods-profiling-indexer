@@ -165,7 +165,7 @@ describe Indexer do
         indexer.send(:blacklist)
       end
       it "should log an error message and throw RuntimeError if it can't find the indicated blacklist file" do
-        exp_msg = 'Unable to find blacklist at bad_path'
+        exp_msg = 'Unable to find list of druids at bad_path'
         indexer = Indexer.new(@config_yml_path, {:blacklist => 'bad_path'})
         indexer.logger.should_receive(:fatal).with(exp_msg)
         expect { indexer.send(:load_blacklist, 'bad_path') }.to raise_error(exp_msg)
@@ -204,7 +204,7 @@ describe Indexer do
         indexer.send(:whitelist)
       end
       it "should log an error message and throw RuntimeError if it can't find the indicated whitelist file" do
-        exp_msg = 'Unable to find whitelist at bad_path'
+        exp_msg = 'Unable to find list of druids at bad_path'
         indexer = Indexer.new(@config_yml_path, {:whitelist => 'bad_path'})
         indexer.logger.should_receive(:fatal).with(exp_msg)
         expect { indexer.send(:load_whitelist, 'bad_path') }.to raise_error(exp_msg)

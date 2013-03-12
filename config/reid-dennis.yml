@@ -1,32 +1,17 @@
 # Settings for BnF Images
-# You will want to copy this file and change the following settings:
-# 1. coll_fld_val
-# 2. log_name
-# 3. default_set
-# 4. blacklist or whitelist if you are using them
-
-# the value of the "collection" field in the Solr document (a way to query this OAI harvest only)
-# default is the default_set
-coll_fld_val: bnf_images2
+# You will want to copy this file and the following settings:
+# 1. log_name
+# 2. default_set
+# 3. coll_fld_val  (at bottom)
 
 # log_dir:  directory for log file  (default logs, relative to harvestdor gem path)
 log_dir: logs  
 
 # log_name: name of log file  (default: harvestdor.log)
-log_name: bnf-images2.log
+log_name: rdennis.log
 
 # purl: url for the DOR purl server (used to get ContentMetadata, etc.)
 purl: http://purl.stanford.edu
-
-# ---------- White and Black list parameters -----
-
-# name of file containing druids that will NOT be profiled even if they are harvested via OAI
-#  either give absolute directory, or directory relative to where the command will be executed
-#blacklist: config/bnf_images_w_old_mods_druids.txt
-
-# name of file containing druids that WILL be profiled (all others will be ignored)
-#  either give absolute directory, or directory relative to where the command will be executed
-#whitelist: config/bnf_images_w_old_mods_druids.txt
 
 # ---------- OAI harvesting parameters -----------
 
@@ -35,19 +20,19 @@ purl: http://purl.stanford.edu
 # oai_repository_url:  URL of the OAI data provider
 oai_repository_url: https://dor-oaiprovider-prod.stanford.edu/oai
 
-# default_set:  default set for harvest  (default: nil)
-#   can be overridden on calls to harvest_ids and harvest_records
-default_set: is_governed_by_ht275vw4351
-
 # default_metadata_prefix:  default metadata prefix to be used for harvesting  (default: mods)
 #   can be overridden on calls to harvest_ids and harvest_records
 
 # default_from_date:  default from date for harvest  (default: nil)
 #   can be overridden on calls to harvest_ids and harvest_records
-default_from_date: 2013-01-01T00:00:00Z
 
 # default_until_date:  default until date for harvest  (default: nil)
 #   can be overridden on calls to harvest_ids and harvest_records
+
+# default_set:  default set for harvest  (default: nil)
+#   can be overridden on calls to harvest_ids and harvest_records
+default_set: is_member_of_collection_sg213ph2100
+# is_governed_by_hy787xj5878 --> Archives Parliamentaire
 
 # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
 http_options:
@@ -62,3 +47,7 @@ solr:
 #  url: http://localhost:8080/solr/mods_profiler
   read_timeout: 500
   open_timeout: 500
+
+# the value of the "collection" field in the Solr document (a way to query this OAI harvest only)
+# default is the default_set
+coll_fld_val: reid_dennis

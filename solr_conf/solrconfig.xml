@@ -64,6 +64,7 @@
           <int name="facet.limit">30</int>
           <str name="facet.field">abstract_sim</str>
           <str name="facet.field">accessCondition_sim</str>
+          <str name="facet.field">classification_sim</str>
           <str name="facet.field">extension_sim</str>
           <str name="facet.field">genre_sim</str>
           <str name="facet.field">identifier_sim</str>
@@ -93,6 +94,7 @@
           <int name="facet.limit">30</int>
           <str name="facet.field">abstract_sim</str>
           <str name="facet.field">accessCondition_sim</str>
+          <str name="facet.field">classification_sim</str>
           <str name="facet.field">extension_sim</str>
           <str name="facet.field">genre_sim</str>
           <str name="facet.field">identifier_sim</str>
@@ -128,6 +130,7 @@
           <int name="facet.limit">30</int>
           <str name="facet.field">abstract_sim</str>
           <str name="facet.field">accessCondition_sim</str>
+          <str name="facet.field">classification_sim</str>
           <str name="facet.field">extension_sim</str>
           <str name="facet.field">genre_sim</str>
           <str name="facet.field">identifier_sim</str>
@@ -157,6 +160,7 @@
           <int name="facet.limit">30</int>
           <str name="facet.field">abstract_sim</str>
           <str name="facet.field">accessCondition_sim</str>
+          <str name="facet.field">classification_sim</str>
           <str name="facet.field">extension_sim</str>
           <str name="facet.field">genre_sim</str>
           <str name="facet.field">identifier_sim</str>
@@ -210,6 +214,7 @@
       
       <bool name="facet">true</bool>
       <int name="facet.mincount">1</int>
+      <bool name="facet.missing">true</bool>
       <int name="facet.limit">21</int>
        <str name="facet.field">abstract_sim</str>
        <str name="facet.field">abstract_displayLabel_sim</str>
@@ -1514,6 +1519,7 @@
       <str name="sort">score desc</str>
       <bool name="facet">true</bool>
       <int name="facet.mincount">1</int>
+      <bool name="facet.missing">true</bool>
       <int name="facet.limit">21</int>
        <str name="facet.field">abstract_sim</str>
        <str name="facet.field">abstract_displayLabel_sim</str>
@@ -2784,6 +2790,41 @@
        <str name="facet.field">typeOfResource_displayLabel_sim</str>
     </lst>
   </requestHandler>
+
+  <!-- basic defType=lucene request handler -->
+  <requestHandler name="top_level" class="solr.SearchHandler" >
+    <lst name="defaults">
+      <str name="defType">lucene</str>
+      <str name="echoParams">explicit</str>
+      <str name="df">all_text_ti</str>
+      <str name="q.op">AND</str>
+      <str name="sort">score desc</str>
+      <int name="rows">0</int>
+      <bool name="facet">true</bool>
+      <int name="facet.mincount">1</int>
+      <bool name="facet.missing">true</bool>
+      <int name="facet.limit">-1</int>
+      <str name="facet.query">abstract_sim:*</str>
+      <str name="facet.query">accessCondition_sim:*</str>
+      <str name="facet.query">classification_sim:*</str>
+      <str name="facet.query">extension_sim:*</str>
+      <str name="facet.query">genre_sim:*</str>
+      <str name="facet.query">identifier_sim:*</str>
+      <str name="facet.query">language_sim:*</str>
+      <str name="facet.query">location_sim:*</str>
+      <str name="facet.query">name_sim:*</str>
+      <str name="facet.query">note_sim:*</str>
+      <str name="facet.query">originInfo_sim:*</str>
+      <str name="facet.query">part_sim:*</str>
+      <str name="facet.query">physicalDescription_sim:*</str>
+      <str name="facet.query">recordInfo_sim:*</str>
+      <str name="facet.query">relatedItem_sim:*</str>
+      <str name="facet.query">subject_sim:*</str>
+      <str name="facet.query">tableOfContents_sim:*</str>
+      <str name="facet.query">targetAudience_sim:*</str>
+      <str name="facet.query">titleInfo_sim:*</str>
+      <str name="facet.query">typeOfResource_sim:*</str>
+		</requestHandler>
 
   <requestHandler name="/update" class="solr.UpdateRequestHandler" startup="lazy" />
   <requestHandler name="/replication" class="solr.ReplicationHandler" startup="lazy" />  

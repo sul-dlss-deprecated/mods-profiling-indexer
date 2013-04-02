@@ -2826,7 +2826,7 @@
       <str name="facet.query">titleInfo_sim:*</str>
       <str name="facet.query">typeOfResource_sim:*</str>
     </lst>
-	</requestHandler>
+  </requestHandler>
 
   <requestHandler name="/update" class="solr.UpdateRequestHandler" startup="lazy" />
   <requestHandler name="/replication" class="solr.ReplicationHandler" startup="lazy" />  

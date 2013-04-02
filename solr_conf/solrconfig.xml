@@ -2791,11 +2791,12 @@
     </lst>
   </requestHandler>
 
-  <!-- basic defType=lucene request handler -->
+  <!-- metadata rose request handler -->
   <requestHandler name="top_level" class="solr.SearchHandler" >
     <lst name="defaults">
-      <str name="defType">lucene</str>
+      <str name="defType">edismax</str>
       <str name="echoParams">explicit</str>
+      <str name="q.alt">*:*</str>
       <str name="df">all_text_ti</str>
       <str name="q.op">AND</str>
       <str name="sort">score desc</str>
@@ -2824,7 +2825,8 @@
       <str name="facet.query">targetAudience_sim:*</str>
       <str name="facet.query">titleInfo_sim:*</str>
       <str name="facet.query">typeOfResource_sim:*</str>
-		</requestHandler>
+    </lst>
+	</requestHandler>
 
   <requestHandler name="/update" class="solr.UpdateRequestHandler" startup="lazy" />
   <requestHandler name="/replication" class="solr.ReplicationHandler" startup="lazy" />  

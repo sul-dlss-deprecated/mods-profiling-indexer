@@ -1,8 +1,8 @@
 # Settings for BnF Images
 # You will want to copy this file and change the following settings:
-# 1. coll_fld_val  (at bottom)
+# 1. coll_fld_val
 # 2. log_name
-# 3. default_set
+# 3. default_set (in OAI harvesting params section)
 # 4. blacklist or whitelist if you are using them
 
 # the value of the "collection" field in the Solr document (a way to query this OAI harvest only)

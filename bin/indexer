@@ -10,12 +10,77 @@ rescue LoadError
   require 'bundler/setup'
   require 'indexer'
 end
+require 'trollop'
 
-config_yml_path = ARGV.pop
-if config_yml_path.nil?
-  puts "** You must provide the full path to a config yml file **"
-  exit
+# Fetch the possible values from the config directory
+# @return Array
+def collections
+  config_dir = File.join(File.dirname(__FILE__), '..', 'config')
+  files = Dir.glob("#{config_dir}/*.yml")
+  files.map! {|x| File.basename(x, ".yml") }
+end
+
+@opts = Trollop::options do
+  version "indexer v0.2.0 (c) 2012 Stanford University http://searchworks.stanford.edu"
+  banner <<-EOM
+  The indexer script harvests records from SearchWorks OAI-PMH Provider
+  and maps them to records into SearchWorks' Solr instance.
+  Usage:
+    ./index [options] 
+  where [options] are:
+  EOM
+    
+  opt :collection, 
+    "Index a given collection. Possible values are #{collections}",
+    :default => nil,
+    :short => 'c',
+    :type => String,
+    :multi => true
+  opt :nocommit,
+    "Index the collection but don't commit",
+    :default => nil,
+    :short => 'n'
+end
+
+###############################################################
+# Local convenience methods
+
+# Time how long jobs take
+def time
+  start = Time.now
+  yield
+  elapsed = Time.now - start
+  puts "This set took #{elapsed} seconds to run."
+end
+
+# Get all of the collections into an Array
+@collections = []
+if @opts[:collection].instance_of?Array 
+  @collections = @opts[:collection] 
+else 
+  @collections << @opts[:collection]
+end
+
+puts @opts.inspect
+
+@collections.each do |c|
+  config_yml_path = File.join(File.dirname(__FILE__), "..", "config", "#{c}.yml")
+  @indexer = Indexer.new(config_yml_path)
+  # puts "Indexing #{c} into solr server #{Indexer.config[:solr][:url]}"
+  # puts "Logging output to #{Indexer.config[:log_dir]}/#{Indexer.config[:log_name]}"
+  time do
+    @indexer.harvest_and_index
+    
+    ## Commit our indexing job unless the :nocommit flag was passed
+    # unless @opts[:nocommit]
+    #   puts "Starting commit..."
+    #   @indexer.solr_client.commit
+    # else
+    #   puts "Skipping commit because :nocommit flag was passed"
+    # end
+    
+  end
+  # puts "Indexing set objects only" if @indexer.config[:sets_only]
 end
   
-indexer = Indexer.new(config_yml_path)
-indexer.harvest_and_index
+

@@ -112,7 +112,7 @@ describe Indexer do
         hdor_client = indexer.send(:harvestdor_client)
         hdor_client.stub(:mods).with(@fake_druid).and_return(@ng_mods)
         doc_hash = indexer.solr_doc(@fake_druid)
-        doc_hash[:collection].should == 'bnf_images1'
+        doc_hash[:collection].should == 'bnf_images2'
       end
       
       it "should be the the default_set if there is no coll_fld_val in the config" do

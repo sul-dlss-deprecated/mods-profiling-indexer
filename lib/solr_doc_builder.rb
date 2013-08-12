@@ -52,7 +52,7 @@ class SolrDocBuilder
   def smods_rec
     if @mods_rec.nil?
       ng_doc = @harvestdor_client.mods @druid
-      raise "Empty MODS metadata for #{druid}: #{ng_doc.to_xml}" if ng_doc.root.xpath('//text()').empty?
+      raise "Empty MODS metadata for #{druid}: #{ng_doc.to_xml}" if !ng_doc.root || ng_doc.root.xpath('//text()').empty?
       @mods_rec = Stanford::Mods::Record.new
       @mods_rec.from_nk_node(ng_doc.root)
     end

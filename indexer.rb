@@ -34,7 +34,7 @@ class Indexer
     if whitelist.empty?
       druids.each { |druid| index druid }
     else
-      whitelist.each { |druid| index druid }
+      whitelist.each { |druid| index druid unless druid.start_with?("#") }
     end
     solr_client.commit
     logger.info("Finished processing: Solr commit returned.")
@@ -73,7 +73,7 @@ class Indexer
     @blacklist ||= []
   end
   
-  # @return an Array of druids ('oo000oo0000') that should NOT be processed
+  # @return an Array of druids ('oo000oo0000') that SHOULD be processed
   def whitelist
     # avoid trying to load the file multiple times
     if !@whitelist && !@loaded_whitelist

@@ -1,4 +1,4 @@
-# Settings for BnF Images
+# Settings for Big Ideas
 # You will want to copy this file and the following settings:
 # 1. log_name
 # 2. default_set
@@ -8,7 +8,7 @@
 log_dir: logs  
 
 # log_name: name of log file  (default: harvestdor.log)
-log_name: stopaids.log
+log_name: big_ideas.log
 
 # purl: url for the DOR purl server (used to get ContentMetadata, etc.)
 purl: http://purl.stanford.edu
@@ -31,8 +31,8 @@ oai_repository_url: https://dor-oaiprovider-prod.stanford.edu/oai
 
 # default_set:  default set for harvest  (default: nil)
 #   can be overridden on calls to harvest_ids and harvest_records
-default_set: is_member_of_collection_sf766bw2868
-# is_governed_by_hy787xj5878 --> Archives Parliamentaire
+default_set: is_member_of_collection_xf112dv1419
+# is_member_of_collection_jr022nf7673 --> Classics Papyri
 
 # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
 http_options:
@@ -50,4 +50,4 @@ solr:
 
 # the value of the "collection" field in the Solr document (a way to query this OAI harvest only)
 # default is the default_set
-coll_fld_val: stopaids
+coll_fld_val: big_ideas

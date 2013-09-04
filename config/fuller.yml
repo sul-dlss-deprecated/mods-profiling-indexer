@@ -44,7 +44,7 @@ http_options:
 
 # ----------- SOLR index (that we're writing INTO) parameters ------------
 solr:
-  url: https://sul-solr-test.stanford.edu/solr/mods_profiler
+  url: https://sul-solr.stanford.edu/solr/mods_profiler
 #  url: http://localhost:8080/solr/mods_profiler
   read_timeout: 500
   open_timeout: 500

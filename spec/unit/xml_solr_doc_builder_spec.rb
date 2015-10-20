@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-RSpec.describe XmlSolrDocBuilder do
+RSpec.describe Profiler::XmlSolrDocBuilder do
 
   before(:all) do
-    @xsdb = XmlSolrDocBuilder.new
+    @xsdb = Profiler::XmlSolrDocBuilder.new
   end
 
   context "doc_hash" do

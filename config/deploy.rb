@@ -10,7 +10,7 @@ set :deploy_to, "#{File.join fetch(:home_parent_dir), fetch(:user), fetch(:appli
 set :branch, 'dependency-update'
 
 set :linked_dirs, %w(logs config/collections tmp)
-set :linked_files, %w(config/solr.yml config/dor-fetcher-client.yml)
+#set :linked_files, %w()
 
 set :stages, %w(dev)
 

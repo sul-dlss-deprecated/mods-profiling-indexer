@@ -5,6 +5,7 @@
 .yardoc
 .travis
 .rvmrc
+.pry_history
 Gemfile.lock
 InstalledFiles
 _yardoc

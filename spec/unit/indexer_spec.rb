@@ -1,221 +1,360 @@
 require 'spec_helper'
 
-describe Indexer do
-  
+RSpec.describe Indexer do
+
   before(:all) do
-    @config_yml_path = File.join(File.dirname(__FILE__), "..", "config", "bnf.yml")
-    @indexer = Indexer.new(@config_yml_path)
+    @config_yml_path = File.join(File.dirname(__FILE__), "..", "config", "feigenbaum.yml")
     require 'yaml'
     @yaml = YAML.load_file(@config_yml_path)
-    @hdor_client = @indexer.send(:harvestdor_client)
+    @ns_decl = "xmlns='#{Mods::MODS_NS}'"
     @fake_druid = 'oo000oo0000'
-    @blacklist_path = File.join(File.dirname(__FILE__), "../config/bnf_blacklist.txt")
-    @whitelist_path = File.join(File.dirname(__FILE__), "../config/bnf_whitelist.txt")
+    @fake_coll_druid = 'oo666oo6666'
+    mods_xml = "<mods #{@ns_decl}><note>Indexer test</note></mods>"
+    @ng_mods_xml =  Nokogiri::XML(mods_xml)
+    pub_xml = "<publicObject id='druid#{@fake_druid}'></publicObject>"
+    @ng_pub_xml = Nokogiri::XML(pub_xml)
   end
-  
-  describe "logging" do
+  before(:each) do
+    @indexer = Indexer.new(@config_yml_path) do |config|
+      config.whitelist = ["druid:ms016pb9280"]
+    end
+    allow(@indexer.solr_client).to receive(:add)
+  end
+
+  let :resource do
+    r = Harvestdor::Indexer::Resource.new(double, @fake_druid)
+    allow(r).to receive(:collections).and_return []
+    allow(r).to receive(:mods).and_return @ng_mods_xml
+    allow(r).to receive(:public_xml).and_return @ng_pub_xml
+    allow(r).to receive(:public_xml?).and_return true
+    allow(r).to receive(:content_metadata).and_return nil
+    allow(r).to receive(:collection?).and_return false
+    r
+  end
+
+  let :collection do
+    r = Harvestdor::Indexer::Resource.new(double, @fake_coll_druid)
+    allow(r).to receive(:collections).and_return []
+    allow(r).to receive(:mods).and_return @ng_mods_xml
+    allow(r).to receive(:public_xml).and_return @ng_pub_xml
+    allow(r).to receive(:public_xml?).and_return true
+    allow(r).to receive(:content_metadata).and_return nil
+    allow(r).to receive(:identity_md_obj_label).and_return ""
+    allow(r).to receive(:collection?).and_return true
+    r
+  end
+
+  context "logging" do
     it "should write the log file to the directory indicated by log_dir" do
-      @indexer.logger.info("indexer_spec logging test message")
-      File.exists?(File.join(@yaml['log_dir'], @yaml['log_name'])).should == true
+      @indexer.logger.info("feigenbaum logging test message")
+      expect(File).to exist(File.join(@yaml['harvestdor']['log_dir'], @yaml['harvestdor']['log_name']))
     end
   end
 
-  it "should initialize the harvestdor_client from the config" do
-    @hdor_client.should be_an_instance_of(Harvestdor::Client)
-    @hdor_client.config.default_set.should == @yaml['default_set']
-  end
-  
-  context "harvest_and_index" do
-    before(:all) do
-      @doc_hash = {
-        :id => @fake_druid,
-        :field => 'val'
-      }
+  describe "#harvest_and_index" do
+    before :each do
+      allow(@indexer.harvestdor).to receive(:each_resource)
+      allow(@indexer).to receive(:solr_client).and_return(double(commit!: nil))
+      allow(@indexer).to receive(:log_results)
+      allow(@indexer).to receive(:email_results)
     end
-    it "should call druids_via_oai and then call :add on rsolr connection" do
-      @indexer.stub(:solr_doc).and_return(@doc_hash)
-      @hdor_client.should_receive(:druids_via_oai).and_return([@fake_druid])
-      @indexer.solr_client.should_receive(:add).with(@doc_hash)
-      @indexer.solr_client.should_receive(:commit)
+    it "should log and email results" do
+      expect(@indexer).to receive(:log_results)
+      expect(@indexer).to receive(:email_results)
+
       @indexer.harvest_and_index
     end
-    it "should not process druids in blacklist" do
-      indexer = Indexer.new(@config_yml_path, {:blacklist => @blacklist_path})
-      hdor_client = indexer.send(:harvestdor_client)
-      indexer.stub(:solr_doc).with('oo000oo0000').and_return({:id => 'oo000oo0000', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo111oo1111').and_return({:id => 'oo111oo1111', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo222oo2222').and_return({:id => 'oo222oo2222', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo333oo3333').and_return({:id => 'oo333oo3333', :field => 'val' })
-      hdor_client.should_receive(:druids_via_oai).and_return(['oo000oo0000', 'oo111oo1111', 'oo222oo2222', 'oo333oo3333'])
-      indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo000oo0000'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo111oo1111'}))
-      indexer.solr_client.should_not_receive(:add).with(hash_including({:id => 'oo222oo2222'}))
-      indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo333oo3333'}))
-      indexer.solr_client.should_receive(:commit)
-      indexer.harvest_and_index
+    it "should index each resource" do
+      allow(@indexer).to receive(:harvestdor).and_return(Class.new do
+        def initialize *items
+          @items = items
+        end
+        def each_resource opts = {}
+          @items.each { |x| yield x }
+        end
+        def logger
+          Logger.new(STDERR)
+        end
+      end.new(collection, resource))
+
+      expect(@indexer).to receive(:index).with(collection)
+      expect(@indexer).to receive(:index).with(resource)
+
+      @indexer.harvest_and_index
     end
-    it "should only process druids in whitelist if it exists" do
-      indexer = Indexer.new(@config_yml_path, {:whitelist => @whitelist_path})
-      hdor_client = indexer.send(:harvestdor_client)
-      indexer.stub(:solr_doc).with('oo000oo0000').and_return({:id => 'oo000oo0000', :field => 'val' })
-      indexer.stub(:solr_doc).with('oo222oo2222').and_return({:id => 'oo222oo2222', :field => 'val' })
-      hdor_client.should_not_receive(:druids_via_oai)
-      indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo000oo0000'}))
-      indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo222oo2222'}))
-      indexer.solr_client.should_receive(:commit)
-      indexer.harvest_and_index
+    it "should send a solr commit" do
+      expect(@indexer.solr_client).to receive(:commit!)
+      @indexer.harvest_and_index
     end
-    it "should not process druids if it is in both blacklist and whitelist" do
-      indexer = Indexer.new(@config_yml_path, {:blacklist => @blacklist_path, :whitelist => @whitelist_path})
-      hdor_client = indexer.send(:harvestdor_client)
-      indexer.stub(:solr_doc).with('oo000oo0000').and_return({:id => 'oo000oo0000', :field => 'val' })
-      hdor_client.should_not_receive(:druids_via_oai)
-      indexer.solr_client.should_receive(:add).with(hash_including({:id => 'oo000oo0000'}))
-      indexer.solr_client.should_receive(:commit)
-      indexer.harvest_and_index
-    end
-    it "should only call :commit on rsolr connection once" do
-      indexer = Indexer.new(@config_yml_path)
-      hdor_client = indexer.send(:harvestdor_client)
-      hdor_client.should_receive(:druids_via_oai).and_return(['1', '2', '3'])
-      indexer.stub(:solr_doc).and_return(@doc_hash)
-      indexer.solr_client.should_receive(:add).with(@doc_hash).exactly(3).times
-      indexer.solr_client.should_receive(:commit).once
-      indexer.harvest_and_index
+    it "should not commit if nocommit is set" do
+      expect(@indexer.solr_client).to_not receive(:commit!)
+      @indexer.harvest_and_index(true)
     end
   end
-  
-  it "druids method should call druids_via_oai method on harvestdor_client" do
-    @hdor_client.should_receive(:druids_via_oai)
-    @indexer.druids
+
+  describe "#index" do
+    it "should index other resources as items" do
+      expect(@indexer).to receive(:solr_document).with(resource)
+      @indexer.index resource
+    end
   end
-  
-  context "solr_doc fields" do
-    
+
+  describe "#index_with_exception_handling" do
+    it "should capture, log, and re-raise any exception thrown by the indexing process" do
+      expect(@indexer).to receive(:index).with(resource).and_raise "xyz"
+      expect(@indexer.logger).to receive(:error)
+      expect { @indexer.index_with_exception_handling(resource) }.to raise_error RuntimeError
+      expect(@indexer.druids_failed_to_ix).to include resource.druid
+    end
+  end
+
+
+  context "#solr_document" do
+
     before(:all) do
       @ns_decl = "xmlns='#{Mods::MODS_NS}'"
       @title = 'qervavdsaasdfa'
       @ng_mods = Nokogiri::XML("<mods #{@ns_decl}><titleInfo><title>#{@title}</title></titleInfo></mods>")
     end
     before(:each) do
-      @hdor_client.stub(:mods).with(@fake_druid).and_return(@ng_mods)
-      @doc_hash = @indexer.solr_doc(@fake_druid)
+      allow_any_instance_of(Harvestdor::Client).to receive(:mods).with(@fake_druid).and_return(@ng_mods)
     end
 
-    it "should have fields populated from the MODS" do
-      @doc_hash[:titleInfo_sim].should == [@title]
+    it "has fields populated from the MODS" do
+      doc_hash = @indexer.solr_document(resource)
+      expect(doc_hash[:titleInfo_sim]).to eq [@title]
     end
-    
+
     context "collection field" do
-      it "should be populated from the yml if there is no overriding config value" do
-        indexer = Indexer.new(File.join(File.dirname(__FILE__), "..", "..", "config", "bnf-images.yml"))
-        hdor_client = indexer.send(:harvestdor_client)
-        hdor_client.stub(:mods).with(@fake_druid).and_return(@ng_mods)
-        doc_hash = indexer.solr_doc(@fake_druid)
-        doc_hash[:collection].should == 'bnf_images2'
-      end
-      
-      it "should be the the default_set if there is no coll_fld_val in the config" do
+      it "populated from the yml if there is no overriding config value" do
         indexer = Indexer.new(@config_yml_path)
-        hdor_client = indexer.send(:harvestdor_client)
-        hdor_client.stub(:mods).with(@fake_druid).and_return(@ng_mods)
-        doc_hash = indexer.solr_doc(@fake_druid)
-        doc_hash[:collection].should == 'is_governed_by_ht275vw4351'
+        doc_hash = indexer.solr_document(resource)
+        expect(doc_hash[:collection]).to eq 'feigenbaum'
       end
-      
-      it "should be able to use options from the config" do
+
+      it "able to use options from the config" do
         indexer = Indexer.new(@config_yml_path, Confstruct::Configuration.new(:coll_fld_val => 'this_coll') )
-        hdor_client = indexer.send(:harvestdor_client)
-        hdor_client.stub(:mods).with(@fake_druid).and_return(@ng_mods)
-        doc_hash = indexer.solr_doc(@fake_druid)
-        doc_hash[:collection].should == 'this_coll'
+        doc_hash = indexer.solr_document(resource)
+        expect(doc_hash[:collection]).to eq 'this_coll'
       end
     end
-    
+
   end # solr_doc
-  
-  context "blacklist" do
-    it "should be an Array with an entry for each non-empty line in the file" do
-      @indexer.send(:load_blacklist, @blacklist_path)
-      @indexer.send(:blacklist).should be_an_instance_of(Array)
-      @indexer.send(:blacklist).size.should == 2
-    end
-    it "should be empty Array if there was no blacklist config setting" do
-      indexer = Indexer.new(@config_yml_path)
-      indexer.stub(:solr_doc).and_return(@doc_hash)
-      indexer.send(:blacklist).should == []
-    end
-    context "load_blacklist" do
-      it "should not be called if there was no blacklist config setting" do
-        indexer = Indexer.new(@config_yml_path)
 
-        indexer.should_not_receive(:load_blacklist)
 
-        indexer.stub(:solr_doc).and_return(@doc_hash)
-        hdor_client = indexer.send(:harvestdor_client)
-        hdor_client.should_receive(:druids_via_oai).and_return([@fake_druid])
-        indexer.solr_client.should_receive(:add)
-        indexer.solr_client.should_receive(:commit)
-        indexer.harvest_and_index
+  context "#item_solr_document" do
+    context "unmerged" do
+      it "calls Harvestdor::Indexer.solr_add" do
+        doc_hash = @indexer.item_solr_document(resource)
+        expect(doc_hash).to include id: @fake_druid
       end
-      it "should only try to load a blacklist once" do
-        indexer = Indexer.new(@config_yml_path, {:blacklist => @blacklist_path})
-        indexer.send(:blacklist)
-        File.any_instance.should_not_receive(:open)
-        indexer.send(:blacklist)
+      it "calls validate_item" do
+        expect_any_instance_of(GDor::Indexer::SolrDocHash).to receive(:validate_item).and_return([])
+        @indexer.item_solr_document resource
       end
-      it "should log an error message and throw RuntimeError if it can't find the indicated blacklist file" do
-        exp_msg = 'Unable to find list of druids at bad_path'
-        indexer = Indexer.new(@config_yml_path, {:blacklist => 'bad_path'})
-        indexer.logger.should_receive(:fatal).with(exp_msg)
-        expect { indexer.send(:load_blacklist, 'bad_path') }.to raise_error(exp_msg)
-      end   
-    end
-  end # blacklist
-  
-  context "whitelist" do
-    it "should be an Array with an entry for each non-empty line in the file" do
-      @indexer.send(:load_whitelist, @whitelist_path)
-      @indexer.send(:whitelist).should be_an_instance_of(Array)
-      @indexer.send(:whitelist).size.should == 2
-    end
-    it "should be empty Array if there was no whitelist config setting" do
-      indexer = Indexer.new(@config_yml_path)
-      indexer.stub(:solr_doc).and_return(@doc_hash)
-      indexer.send(:whitelist).should == []
-    end
-    context "load_whitelist" do
-      it "should not be called if there was no whitelist config setting" do
-        indexer = Indexer.new(@config_yml_path)
+      it "calls GDor::Indexer::SolrDocBuilder.validate_mods" do
+        allow_any_instance_of(GDor::Indexer::SolrDocHash).to receive(:validate_item).and_return([])
+        expect_any_instance_of(GDor::Indexer::SolrDocHash).to receive(:validate_mods).and_return([])
+        @indexer.item_solr_document resource
+      end
+      it "calls add_coll_info" do
+        expect(@indexer).to receive(:add_coll_info)
+        @indexer.item_solr_document resource
+      end
+      it "should have fields populated from the collection record" do
+        sdb = double
+        allow(sdb).to receive(:doc_hash).and_return(GDor::Indexer::SolrDocHash.new)
+        allow(sdb).to receive(:display_type)
+        allow(sdb).to receive(:file_ids)
+        allow(sdb.doc_hash).to receive(:validate_mods).and_return([])
+        allow(GDor::Indexer::SolrDocBuilder).to receive(:new).and_return(sdb)
+        allow(resource).to receive(:collections).and_return([double(druid: "foo", bare_druid: "foo", identity_md_obj_label: "bar")])
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include druid: @fake_druid, :collection => ['foo'], :collection_with_title => ['foo-|-bar']
+      end
+      it "should have fields populated from the MODS" do
+        title = 'fake title in mods'
+        ng_mods = Nokogiri::XML("<mods #{@ns_decl}><titleInfo><title>#{title}</title></titleInfo></mods>")
+        allow(resource).to receive(:mods).and_return(ng_mods)
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :title_display => title
+      end
+      it "should populate url_fulltext field with purl page url" do
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :url_fulltext => "#{@yaml['harvestdor']['purl']}/#{@fake_druid}"
+      end
+      it "should populate druid and access_facet fields" do
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :druid => @fake_druid, :access_facet => 'Online'
+      end
+      it "should populate display_type field by calling display_type method" do
+        expect_any_instance_of(GDor::Indexer::SolrDocBuilder).to receive(:display_type).and_return("foo")
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :display_type => "foo"
+      end
+      it "should populate file_id field by calling file_ids method" do
+        expect_any_instance_of(GDor::Indexer::SolrDocBuilder).to receive(:file_ids).at_least(1).times.and_return(["foo"])
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :file_id => ["foo"]
+      end
+      it "should populate building_facet field with Stanford Digital Repository" do
+        doc_hash = @indexer.item_solr_document resource
+        expect(doc_hash).to include id: @fake_druid, :building_facet => 'Stanford Digital Repository'
+      end
+    end # unmerged item
 
-        indexer.should_not_receive(:load_whitelist)
+  end # item_solr_document
 
-        indexer.stub(:solr_doc).and_return(@doc_hash)
-        hdor_client = indexer.send(:harvestdor_client)
-        hdor_client.should_receive(:druids_via_oai).and_return([@fake_druid])
-        indexer.solr_client.should_receive(:add)
-        indexer.solr_client.should_receive(:commit)
-        indexer.harvest_and_index
-      end
-      it "should only try to load a whitelist once" do
-        indexer = Indexer.new(@config_yml_path, {:whitelist => @whitelist_path})
-        indexer.send(:whitelist)
-        File.any_instance.should_not_receive(:open)
-        indexer.send(:whitelist)
-      end
-      it "should log an error message and throw RuntimeError if it can't find the indicated whitelist file" do
-        exp_msg = 'Unable to find list of druids at bad_path'
-        indexer = Indexer.new(@config_yml_path, {:whitelist => 'bad_path'})
-        indexer.logger.should_receive(:fatal).with(exp_msg)
-        expect { indexer.send(:load_whitelist, 'bad_path') }.to raise_error(exp_msg)
-      end   
+  context "#add_coll_info and supporting methods" do
+    before(:each) do
+      @coll_druids_array = [collection]
     end
-  end # whitelist
-  
-  it "solr_client should initialize the rsolr client using the options from the config" do
-    indexer = Indexer.new(nil, Confstruct::Configuration.new(:solr => { :url => 'http://localhost:2345', :a => 1 }) )
-    RSolr.should_receive(:connect).with(hash_including(:a => 1, :url => 'http://localhost:2345')).and_return('foo')
-    indexer.solr_client
+
+    it "should add no collection field values to doc_hash if there are none" do
+      doc_hash = GDor::Indexer::SolrDocHash.new({})
+      @indexer.add_coll_info(doc_hash, nil)
+      expect(doc_hash[:collection]).to be_nil
+      expect(doc_hash[:collection_with_title]).to be_nil
+      expect(doc_hash[:display_type]).to be_nil
+    end
+
+    context "collection field" do
+      it "should be added field to doc hash" do
+        doc_hash = GDor::Indexer::SolrDocHash.new({})
+        @indexer.add_coll_info(doc_hash, @coll_druids_array)
+        expect(doc_hash[:collection]).to match_array [@fake_coll_druid]
+      end
+      it "should add two values to doc_hash when object belongs to two collections" do
+        coll_druid1 = 'oo111oo2222'
+        coll_druid2 = 'oo333oo4444'
+        doc_hash = GDor::Indexer::SolrDocHash.new({})
+        @indexer.add_coll_info(doc_hash, [double(druid: coll_druid1, bare_druid: coll_druid1, public_xml: @ng_pub_xml, identity_md_obj_label: ""), double(druid: coll_druid2, bare_druid: coll_druid2, public_xml: @ng_pub_xml, identity_md_obj_label: "")])
+        expect(doc_hash[:collection]).to match_array [coll_druid1, coll_druid2]
+      end
+    end
+
+  end #add_coll_info
+
+  context "#num_found_in_solr" do
+    before :each do
+      @unmerged_collection_response =
+        {
+          'response' =>
+          { 'numFound' => '1',
+            'docs' => [
+              {
+                'id' => 'dm212rn7381',
+                'url_fulltext' => ['http://purl.stanford.edu/dm212rn7381']
+              }
+            ]
+          }
+        }
+      @item_response =
+        {
+          'response' =>
+          {
+            'numFound' => '265',
+            'docs' => [{ 'id' => 'dm212rn7381' }]
+          }
+        }
+    end
+
+    it 'should count the items in the solr index after indexing' do
+      allow(@indexer.solr_client.client).to receive(:get) do |wt, params|
+        if params[:params][:fq].include?('id:"dm212rn7381"')
+          @unmerged_collection_response
+        else
+          @item_response
+        end
+      end
+      expect(@indexer.num_found_in_solr(collection: "dm212rn7381")).to eq(266)
+    end
+  end # num_found_in_solr
+
+  context "#email_report_body" do
+    before :each do
+      @indexer.config.notification = "notification-list@example.com"
+      allow(@indexer).to receive(:num_found_in_solr).and_return(500)
+      allow(@indexer.harvestdor).to receive(:resources).and_return([collection])
+      allow(collection).to receive(:items).and_return([1,2,3])
+      allow(collection).to receive(:identity_md_obj_label).and_return("testcoll title")
+    end
+
+    subject do
+      @indexer.email_report_body
+    end
+
+    it "email body includes coll id" do
+      expect(subject).to match /testcoll indexed coll record is: oo666oo6666/
+    end
+
+    it "email body includes coll title" do
+     expect(subject).to match /coll title: testcoll title/
+    end
+
+    it "email body includes failed to index druids" do
+      @indexer.instance_variable_set(:@druids_failed_to_ix, ['a', 'b'])
+      expect(subject).to match /records that may have failed to index \(merged recs as druids, not ckeys\): \na\nb\n\n/
+    end
+
+    it "email body include validation messages" do
+      @indexer.instance_variable_set(:@validation_messages, ['this is a validation message'])
+      expect(subject).to match /this is a validation message/
+    end
+
+    it "email includes reference to full log" do
+      expect(subject).to match /full log is at gdor_indexer\/shared\/spec\/logs\/testcoll\.log/
+    end
   end
-    
+
+  describe "#email_results" do
+    before :each do
+      @indexer.config.notification = "notification-list@example.com"
+      allow(@indexer).to receive(:send_email)
+      allow(@indexer).to receive(:email_report_body).and_return("Report Body")
+    end
+
+    it "should have an appropriate subject" do
+      expect(@indexer).to receive(:send_email) do |to, opts|
+        expect(opts[:subject]).to match /is finished/
+      end
+
+      @indexer.email_results
+    end
+
+    it "should send the email to the notification list" do
+      expect(@indexer).to receive(:send_email) do |to, opts|
+        expect(to).to eq @indexer.config.notification
+      end
+
+      @indexer.email_results
+    end
+
+    it "should have the report body" do
+      expect(@indexer).to receive(:send_email) do |to, opts|
+        expect(opts[:body]).to eq "Report Body"
+      end
+
+      @indexer.email_results
+    end
+  end
+
+  describe "#send_email" do
+    it "should send an email to the right list" do
+      expect_any_instance_of(Mail::Message).to receive(:deliver!) do |mail|
+        expect(mail.to).to match_array ["notification-list@example.com"]
+      end
+      @indexer.send_email "notification-list@example.com", {}
+    end
+
+    it "should have the appropriate options set" do
+      expect_any_instance_of(Mail::Message).to receive(:deliver!) do |mail|
+        expect(mail.subject).to eq "Subject"
+        expect(mail.from).to match_array ["rspec"]
+        expect(mail.body).to eq "Body"
+      end
+      @indexer.send_email "notification-list@example.com", {from: "rspec", subject: "Subject", body: "Body"}
+    end
+  end
+
 end

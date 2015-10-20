@@ -1,0 +1,37 @@
+# the value of the "collection" field in the Solr document (a way to query this coll only)
+# default is the default_set
+coll_fld_val: feigenbaum
+
+# --------
+harvestdor:
+  # log_name: name of log file  (default: harvestdor.log)
+  log_name: testcoll.log
+
+  # log_dir:  directory for log file  (default logs, relative to harvestdor gem path)
+  log_dir: spec/test_logs
+
+  # purl: url for the DOR purl server (used to get ContentMetadata, etc.)
+  purl: http://purl.stanford.edu
+
+  # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
+  http_options:
+    ssl:
+      verify: false
+    request:
+      # open/read timeout in seconds
+      timeout: 120
+      # connection open timeout in seconds
+      open_timeout: 120
+
+
+dor_fetcher:
+  service_url: http://127.0.0.1:3000
+  skip_heartbeat: true
+
+# ----------- SOLR index (that we're writing INTO) parameters ------------
+solr:
+  url: https://sul-solr.stanford.edu/solr/mods_profiler
+  # timeouts are in seconds;  read_timeout -> open/read, open_timeout -> connection open
+  read_timeout: 60
+  open_timeout: 60
+  max_retries: 10

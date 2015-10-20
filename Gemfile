@@ -1,26 +1,32 @@
-source "https://rubygems.org" 
+source 'https://rubygems.org'
 
-# sul-gems
-gem 'harvestdor'
-gem 'stanford-mods'
-
+gem 'gdor-indexer', github: 'sul-dlss/gdor-indexer'
+gem 'solrizer'
 gem 'nokogiri'
 gem 'rake'
 gem 'rsolr'
 gem 'trollop'
 
+# sul-gems
+gem 'harvestdor-indexer', github: 'sul-dlss/harvestdor-indexer'
+gem 'harvestdor', github: 'sul-dlss/harvestdor', branch: 'remove-oai'
+gem 'stanford-mods'
+
 # documentation
 group :doc do
-	gem 'rdoc'
-	gem 'yard'  # for javadoc-y documentation tags
+  gem 'rdoc'
+end
+
+group :development do
+  gem 'pry-byebug'
 end
 
 # testing
 group :test do
-	gem 'rspec'
-#	gem 'ruby-debug19'
-	gem 'simplecov', :require => false
-	gem 'simplecov-rcov', :require => false
-#  gem 'jettywrapper'
   gem 'equivalent-xml'
+  gem 'jettywrapper'
+  gem 'rspec'
+  gem 'rubocop'
+  gem 'rubocop-rspec'
+  gem 'yard'  # for javadoc-y documentation tags
 end

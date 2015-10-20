@@ -1,7 +1,9 @@
-# Settings for Archives Parlementaires
+# This is OLD.  OAI is dead.  2015-10-19
+
+# Settings for BnF Images
 
 # log_dir:  directory for log file  (default logs, relative to harvestdor gem path)
-log_dir: spec/test_logs  
+log_dir: spec/test_logs
 
 # log_name: name of log file  (default: harvestdor.log)
 log_name: bnf.log
@@ -42,6 +44,6 @@ solr:
 #  url: http://localhost:8080/solr/mods_profiler
   read_timeout: 500
   open_timeout: 500
-  
+
 # the value of the "collection" field in the Solr document (a way to query this OAI harvest only)
 #coll_fld_val: bnf_images

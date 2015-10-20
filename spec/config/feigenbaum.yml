@@ -30,7 +30,7 @@ dor_fetcher:
 
 # ----------- SOLR index (that we're writing INTO) parameters ------------
 solr:
-  url: https://sul-solr.stanford.edu/solr/mods_profiler
+  url: https://solr.baseurl.org
   # timeouts are in seconds;  read_timeout -> open/read, open_timeout -> connection open
   read_timeout: 60
   open_timeout: 60

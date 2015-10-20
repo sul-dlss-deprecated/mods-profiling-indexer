@@ -1,16 +1,16 @@
 source 'https://rubygems.org'
 
-gem 'gdor-indexer', github: 'sul-dlss/gdor-indexer'
 gem 'solrizer'
 gem 'nokogiri'
 gem 'rake'
 gem 'rsolr'
 gem 'trollop'
+gem 'stanford-mods'
 
 # sul-gems
-gem 'harvestdor-indexer', github: 'sul-dlss/harvestdor-indexer'
-gem 'harvestdor', github: 'sul-dlss/harvestdor', branch: 'remove-oai'
-gem 'stanford-mods'
+gem 'harvestdor', git: 'https://github.com/sul-dlss/harvestdor.git'
+gem 'harvestdor-indexer', git: 'https://github.com/sul-dlss/harvestdor-indexer.git'
+gem 'gdor-indexer', git: 'https://github.com/sul-dlss/gdor-indexer.git'
 
 # documentation
 group :doc do
@@ -21,7 +21,14 @@ group :development do
   gem 'pry-byebug'
 end
 
-# testing
+group :deployment do
+  gem "capistrano", '~> 3.2'
+  gem 'capistrano-bundler'
+  gem "lyberteam-capistrano-devel"
+  gem 'rainbow' # for color output
+end
+
+
 group :test do
   gem 'equivalent-xml'
   gem 'jettywrapper'

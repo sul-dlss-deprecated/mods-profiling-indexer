@@ -1,6 +1,6 @@
 GIT
-  remote: git://github.com/sul-dlss/gdor-indexer.git
-  revision: 302fcd26f575b6c62754b952daffcd7bd39e2898
+  remote: https://github.com/sul-dlss/gdor-indexer.git
+  revision: 47e904470632fec023c1c4f7b50937cbfc841354
   specs:
     gdor-indexer (0.0.1)
       activesupport
@@ -13,7 +13,7 @@ GIT
       trollop
 
 GIT
-  remote: git://github.com/sul-dlss/harvestdor-indexer.git
+  remote: https://github.com/sul-dlss/harvestdor-indexer.git
   revision: fcb12b90a477062a9faca01b371aa9075c2230ea
   specs:
     harvestdor-indexer (2.0.0)
@@ -27,7 +27,7 @@ GIT
       stanford-mods
 
 GIT
-  remote: git://github.com/sul-dlss/harvestdor.git
+  remote: https://github.com/sul-dlss/harvestdor.git
   revision: 7b91cd64085baaacdeb9522295ecbb017dfdf2ac
   specs:
     harvestdor (0.0.14)

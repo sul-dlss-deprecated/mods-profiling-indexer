@@ -8,6 +8,7 @@ gem 'trollop'
 gem 'stanford-mods'
 
 # sul-gems
+# must have https for git so deployed instance can pull these gems
 gem 'harvestdor', git: 'https://github.com/sul-dlss/harvestdor.git'
 gem 'harvestdor-indexer', git: 'https://github.com/sul-dlss/harvestdor-indexer.git'
 gem 'gdor-indexer', git: 'https://github.com/sul-dlss/gdor-indexer.git'

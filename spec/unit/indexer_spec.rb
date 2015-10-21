@@ -146,7 +146,7 @@ RSpec.describe Indexer do
       end
 
       it "able to use options from the config" do
-        indexer = Indexer.new(@config_yml_path, Confstruct::Configuration.new(:coll_fld_val => 'this_coll') )
+        indexer = Indexer.new(@config_yml_path, Confstruct::Configuration.new(:coll_fld_val => 'this_coll'))
         doc_hash = indexer.solr_document(resource)
         expect(doc_hash[:collection]).to eq 'this_coll'
       end

@@ -2,6 +2,8 @@
 coll_fld_val: feigenbaum
 # the whitelist should be an array of the single collection druid, as ['druid:oo123oo1234']
 whitelist: ['druid:ms016pb9280']
+# the severity level of messages to be logged.  Valid values are debug, info, warn, error, fatal
+#log_level:
 harvestdor:
   # log_name: name of log file  (default: harvestdor.log)
   log_name: testcoll.log

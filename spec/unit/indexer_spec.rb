@@ -49,6 +49,19 @@ RSpec.describe Indexer do
       @indexer.logger.info("feigenbaum logging test message")
       expect(File).to exist(File.join(@yaml['harvestdor']['log_dir'], @yaml['harvestdor']['log_name']))
     end
+    it 'logger level defaults to INFO' do
+      expect(@indexer.logger.level).to eq (Logger::INFO)
+    end
+    it 'logger level can be specified in config field' do
+      indexer = Indexer.new(@config_yml_path) do |config|
+        config.log_level = 'debug'
+      end
+      expect(indexer.logger.level).to eq (Logger::DEBUG)
+      indexer = Indexer.new(@config_yml_path) do |config|
+        config.log_level = 'warn'
+      end
+      expect(indexer.logger.level).to eq (Logger::WARN)
+    end
   end
 
   describe "#harvest_and_index" do

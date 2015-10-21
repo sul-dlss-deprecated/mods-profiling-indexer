@@ -6,9 +6,6 @@ ask(:user, 'enter the app username')
 ask(:home_parent_dir, %{Enter the full path of the parent of the home dir (e.g. /home)})
 set :deploy_to, "#{File.join fetch(:home_parent_dir), fetch(:user), fetch(:application)}"
 
-
-set :branch, 'dependency-update'
-
 set :linked_dirs, %w(logs config/collections tmp)
 #set :linked_files, %w()
 

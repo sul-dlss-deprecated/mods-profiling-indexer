@@ -1,0 +1,6 @@
+require: rubocop-rspec
+
+inherit_from: .rubocop_todo.yml
+
+Style/TrailingBlankLines:
+  Enabled: false

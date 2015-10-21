@@ -12,11 +12,13 @@ end
 begin
   require 'rspec/core/rake_task'
   RSpec::Core::RakeTask.new(:spec)
-  task default: :spec
+  task :spec
 rescue LoadError
   # rspec not available - we're probably on a prod environment or need to run bundle install
 end
 
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new(:rubocop)
 
 begin
   require 'yard'
@@ -29,4 +31,4 @@ rescue LoadError
   end
 end
 
-
+task default: [:spec, :rubocop]

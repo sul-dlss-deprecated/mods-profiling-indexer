@@ -1,7 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'indexer'
-require 'equivalent-xml'
 
 RSpec.configure do |config|
 

@@ -31,8 +31,6 @@ end
 
 
 group :test do
-  gem 'equivalent-xml'
-  gem 'jettywrapper'
   gem 'rspec'
   gem 'rubocop'
   gem 'rubocop-rspec'

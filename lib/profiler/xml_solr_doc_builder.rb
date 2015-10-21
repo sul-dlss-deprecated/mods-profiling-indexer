@@ -45,7 +45,7 @@ module Profiler
       }
       # recurse for subelements
       ng_el.element_children.each { |en|
-        hash.merge!(doc_hash_from_element(en, "#{el_name}_")) { |k, oldval, newval|
+        hash.merge!(doc_hash_from_element(en, "#{el_name}_")) { |_k, oldval, newval|
           oldval.concat(newval)
         }
       }

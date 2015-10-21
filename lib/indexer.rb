@@ -30,13 +30,14 @@ class Indexer < GDor::Indexer
   end
 
   def logger
-    config_level = case config.log_level
+    config_level =
+      case config.log_level
       when 'debug' then Logger::DEBUG
       when 'info' then Logger::INFO
       when 'warn' then Logger::WARN
       when 'error' then Logger::ERROR
       when 'fatal' then Logger::FATAL
-    end
+      end
     level = config_level ? config_level : Logger::INFO
     harvestdor.logger.level = level
     harvestdor.logger
@@ -58,7 +59,7 @@ class Indexer < GDor::Indexer
   def harvest_and_index(nocommit = nil)
     nocommit = config.nocommit if nocommit.nil?
 
-    start_time = Time.now
+    start_time = Time.now.getlocal
     logger.info("Started harvest_and_index at #{start_time}")
 
     harvestdor.each_resource(in_threads: 3) do |resource|
@@ -74,7 +75,7 @@ class Indexer < GDor::Indexer
     end
 
     @total_time = elapsed_time(start_time)
-    logger.info("Finished harvest_and_index at #{Time.now}")
+    logger.info("Finished harvest_and_index at #{Time.now.getlocal}")
     logger.info("Total elapsed time for harvest and index: #{(@total_time / 60).round(2)} minutes")
 
     log_results
@@ -104,7 +105,7 @@ class Indexer < GDor::Indexer
   # @param [Stanford::Mods::Record] MODS metadata as a Stanford::Mods::Record object
   # @param [Hash] Hash representing the Solr document
   def solr_document(resource)
-    if !resource.collection?
+    unless resource.collection?
       sdb = Profiler::SolrDocBuilder.new(resource.bare_druid, harvestdor_client, logger)
       doc_hash = sdb.doc_hash
       doc_hash[:collection] = config.coll_fld_val ? config.coll_fld_val : config.default_set
@@ -182,7 +183,7 @@ class Indexer < GDor::Indexer
     body += "full log is at gdor_indexer/shared/#{config.harvestdor.log_dir}/#{config.harvestdor.log_name} on #{Socket.gethostname}"
     body += "\n"
 
-    body += @validation_messages.join("\n") + "\n"
+    body + @validation_messages.join("\n") + "\n"
   end
 
   # email the results of indexing if we are on one of the harvestdor boxes
@@ -218,7 +219,7 @@ class Indexer < GDor::Indexer
   end
 
   def elapsed_time(start_time, units = :seconds)
-    elapsed_seconds = Time.now - start_time
+    elapsed_seconds = Time.now.getlocal - start_time
     case units
     when :seconds
       return elapsed_seconds.round(2)

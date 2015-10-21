@@ -19,7 +19,7 @@ def collections
   files.map! { |x| File.basename(x, '.yml') }
 end
 
-@opts = Trollop::options do
+@opts = Trollop.options do
   version 'indexer v0.2.0 (c) 2012-2015 Stanford University'
   banner <<-EOM
   The indexer script harvests records from SearchWorks OAI-PMH Provider

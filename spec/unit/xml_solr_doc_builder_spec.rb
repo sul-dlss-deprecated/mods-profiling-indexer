@@ -92,5 +92,4 @@ RSpec.describe Profiler::XmlSolrDocBuilder do
     end
   end # doc_hash_from_element
 
-
 end

@@ -29,7 +29,6 @@ group :deployment do
   gem 'rainbow' # for color output
 end
 
-
 group :test do
   gem 'rspec'
   gem 'rubocop'

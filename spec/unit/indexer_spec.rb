@@ -50,17 +50,17 @@ RSpec.describe Indexer do
       expect(File).to exist(File.join(@yaml['harvestdor']['log_dir'], @yaml['harvestdor']['log_name']))
     end
     it 'logger level defaults to INFO' do
-      expect(@indexer.logger.level).to eq (Logger::INFO)
+      expect(@indexer.logger.level).to eq Logger::INFO
     end
     it 'logger level can be specified in config field' do
       indexer = Indexer.new(@config_yml_path) do |config|
         config.log_level = 'debug'
       end
-      expect(indexer.logger.level).to eq (Logger::DEBUG)
+      expect(indexer.logger.level).to eq Logger::DEBUG
       indexer = Indexer.new(@config_yml_path) do |config|
         config.log_level = 'warn'
       end
-      expect(indexer.logger.level).to eq (Logger::WARN)
+      expect(indexer.logger.level).to eq Logger::WARN
     end
   end
 
@@ -121,7 +121,6 @@ RSpec.describe Indexer do
     end
   end
 
-
   context "#solr_document" do
 
     before(:all) do
@@ -151,7 +150,6 @@ RSpec.describe Indexer do
         expect(doc_hash[:collection]).to eq 'this_coll'
       end
     end
-
   end # solr_doc
 
 
@@ -215,7 +213,6 @@ RSpec.describe Indexer do
         expect(doc_hash).to include id: @fake_druid, :building_facet => 'Stanford Digital Repository'
       end
     end # unmerged item
-
   end # item_solr_document
 
   context "#add_coll_info and supporting methods" do
@@ -245,7 +242,6 @@ RSpec.describe Indexer do
         expect(doc_hash[:collection]).to match_array [coll_druid1, coll_druid2]
       end
     end
-
   end #add_coll_info
 
   context "#num_found_in_solr" do
@@ -273,7 +269,7 @@ RSpec.describe Indexer do
     end
 
     it 'should count the items in the solr index after indexing' do
-      allow(@indexer.solr_client.client).to receive(:get) do |wt, params|
+      allow(@indexer.solr_client.client).to receive(:get) do |_wt, params|
         if params[:params][:fq].include?('id:"dm212rn7381"')
           @unmerged_collection_response
         else
@@ -302,7 +298,7 @@ RSpec.describe Indexer do
     end
 
     it "email body includes coll title" do
-     expect(subject).to match /coll title: testcoll title/
+      expect(subject).to match /coll title: testcoll title/
     end
 
     it "email body includes failed to index druids" do
@@ -328,7 +324,7 @@ RSpec.describe Indexer do
     end
 
     it "should have an appropriate subject" do
-      expect(@indexer).to receive(:send_email) do |to, opts|
+      expect(@indexer).to receive(:send_email) do |_to, opts|
         expect(opts[:subject]).to match /is finished/
       end
 
@@ -336,7 +332,7 @@ RSpec.describe Indexer do
     end
 
     it "should send the email to the notification list" do
-      expect(@indexer).to receive(:send_email) do |to, opts|
+      expect(@indexer).to receive(:send_email) do |to, _opts|
         expect(to).to eq @indexer.config.notification
       end
 
@@ -344,7 +340,7 @@ RSpec.describe Indexer do
     end
 
     it "should have the report body" do
-      expect(@indexer).to receive(:send_email) do |to, opts|
+      expect(@indexer).to receive(:send_email) do |_to, opts|
         expect(opts[:body]).to eq "Report Body"
       end
 

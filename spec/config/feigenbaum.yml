@@ -1,0 +1,42 @@
+# the value of the "collection" field in the profiling Solr document (a way to query this coll only in Solr)
+coll_fld_val: feigenbaum
+
+# the whitelist should be an array of the single collection druid, as ['druid:oo123oo1234']
+# if this is missing, 0 records will be fetched from the Dor Fetcher service
+whitelist: ['druid:ms016pb9280']
+
+# the severity level of messages to be logged.  Valid values are debug, info, warn, error, fatal
+# default: debug
+#log_level: info
+
+harvestdor:
+  # log_name: name of log file  (default: STDERR per harvestdor-indexer)
+  log_name: testcoll.log
+
+  # log_dir:  directory for log file  (default logs, relative to harvestdor gem path)
+  log_dir: spec/logs
+
+  # purl: url for the DOR purl server (used to get MODS)
+  purl: http://purl.stanford.edu
+
+  # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
+  http_options:
+    ssl:
+      verify: false
+    request:
+      # open/read timeout in seconds
+      timeout: 120
+      # connection open timeout in seconds
+      open_timeout: 120
+
+solr:
+  # the baseurl of the Solr index we are writing to
+  url: http://solr.baseurl.org
+
+dor_fetcher:
+  # the baseurl of the DOR Fetcher service from which we get the item druids (per whitelist above)
+  #  do not include 'collections' at end.
+  service_url: http://dorfetcher.baseurl.org
+  # skip_heartbeat is a way to allow bogus service_urls for testing without an external call to the url
+  #  (o.w. in the dor fetcher object constructor, it attempts to see if the url is live)
+  #skip_heartbeat: true

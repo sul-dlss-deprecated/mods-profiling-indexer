@@ -5,7 +5,7 @@
 .yardoc
 .travis
 .rvmrc
-Gemfile.lock
+.pry_history
 InstalledFiles
 _yardoc
 coverage

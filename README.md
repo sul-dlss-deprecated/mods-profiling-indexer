@@ -34,8 +34,7 @@ Run from deployed instance, as that box is already set up to be able to talk to 
 From deployed ```current``` directory:
 
 1. ```$ ./bin/indexer --help```
-2. ```$ ./bin/indexer   will show the possible collections```
-3. ```$ ./bin/indexer -c [name of .yml file in config/collections dir)]```
+2. ```$ ./bin/indexer -c [name of .yml file in config/collections dir)]```
 
 
 To view results:

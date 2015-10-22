@@ -62,7 +62,7 @@ class Indexer < GDor::Indexer
     start_time = Time.now.getlocal
     logger.info("Started harvest_and_index at #{start_time}")
 
-    harvestdor.each_resource(in_threads: 3) do |resource|
+    harvestdor.each_resource(in_threads: 1) do |resource|
       index_with_exception_handling resource
     end
 

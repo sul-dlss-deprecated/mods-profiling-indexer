@@ -8,5 +8,10 @@ Style/EmptyLinesAroundBlockBody:
 Style/EmptyLinesAroundClassBody:
   Enabled: false
 
+# shut hound up (stylistic diff w rubocop version?)
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: single_quotes
+
 Style/TrailingBlankLines:
   Enabled: false

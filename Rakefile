@@ -12,7 +12,6 @@ end
 begin
   require 'rspec/core/rake_task'
   RSpec::Core::RakeTask.new(:spec)
-  task :spec
 rescue LoadError
   # rspec not available - we're probably on a prod environment or need to run bundle install
 end

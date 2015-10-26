@@ -253,7 +253,7 @@ RSpec.describe Indexer do
             'docs' => [
               {
                 'id' => 'dm212rn7381',
-                'url_fulltext' => ['http://purl.stanford.edu/dm212rn7381']
+                'url_fulltext' => ['https://purl.stanford.edu/dm212rn7381']
               }
             ]
           }

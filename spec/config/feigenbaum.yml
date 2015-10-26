@@ -17,17 +17,7 @@ harvestdor:
   log_dir: spec/logs
 
   # purl: url for the DOR purl server (used to get MODS)
-  purl: http://purl.stanford.edu
-
-  # Additional options to pass to Faraday http client (https://github.com/technoweenie/faraday)
-  http_options:
-    ssl:
-      verify: false
-    request:
-      # open/read timeout in seconds
-      timeout: 120
-      # connection open timeout in seconds
-      open_timeout: 120
+  purl: https://purl.stanford.edu
 
 solr:
   # the baseurl of the Solr index we are writing to

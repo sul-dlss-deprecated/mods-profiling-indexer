@@ -5,7 +5,7 @@ begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
-  $stderr.puts "Run `bundle install` to install missing gems"
+  $stderr.puts 'Run `bundle install` to install missing gems'
   exit e.status_code
 end
 
@@ -24,9 +24,9 @@ begin
   YARD::Rake::YardocTask.new
   task doc: :yard
 rescue LoadError
-  desc "Generate YARD Documentation"
+  desc 'Generate YARD Documentation'
   task :doc do
-    abort "Please install the YARD gem to generate rdoc."
+    abort 'Please install the YARD gem to generate rdoc.'
   end
 end
 

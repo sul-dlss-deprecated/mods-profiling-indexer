@@ -22,17 +22,17 @@ module Profiler
     # @param [Nokogiri::XML::Element] ng_el
     # @param [String] key_prefix a string containing the ancestor element names, e.g. 'name_role_'
     # @return [Hash<Symbol, Array<String>>] Hash representation of the Solr fields for this element
-    def doc_hash_from_element ng_el, key_prefix = nil
+    def doc_hash_from_element(ng_el, key_prefix = nil)
       el_name = key_prefix ? key_prefix + ng_el.name : ng_el.name
       hash = {}
       # entry for element text content
-      el_text = ng_el.text.gsub(/\s+/,' ').strip
+      el_text = ng_el.text.gsub(/\s+/, ' ').strip
       key = "#{el_name}#{@key_suffix}".to_sym
       unless el_text.empty?
         hash[key] ? hash[key] << el_text : hash[key] = [el_text]
       end
       # entry for each element attribute
-      ng_el.attribute_nodes.each { |an|
+      ng_el.attribute_nodes.each do |an|
         at_text = an.text.strip
         unless at_text.empty?
           if an.namespace
@@ -42,13 +42,13 @@ module Profiler
           end
           hash[key] ? hash[key] << at_text : hash[key] = [at_text]
         end
-      }
+      end
       # recurse for subelements
-      ng_el.element_children.each { |en|
-        hash.merge!(doc_hash_from_element(en, "#{el_name}_")) { |_k, oldval, newval|
+      ng_el.element_children.each do |en|
+        hash.merge!(doc_hash_from_element(en, "#{el_name}_")) do |_k, oldval, newval|
           oldval.concat(newval)
-        }
-      }
+        end
+      end
       hash
     end
 

@@ -67,11 +67,11 @@ class Indexer < GDor::Indexer
     end
 
     unless nocommit
-      logger.info("Beginning Commit.")
+      logger.info('Beginning Commit.')
       solr_client.commit!
-      logger.info("Finished Commit.")
+      logger.info('Finished Commit.')
     else
-      logger.info("Skipping commit per nocommit flag")
+      logger.info('Skipping commit per nocommit flag')
     end
 
     @total_time = elapsed_time(start_time)
@@ -83,14 +83,12 @@ class Indexer < GDor::Indexer
   end
 
   def index_with_exception_handling(resource)
-    begin
-      index resource
-    rescue => e
-      @error_count += 1
-      @druids_failed_to_ix << resource.druid
-      logger.error "Failed to index item #{resource.druid}: #{e.message} #{e.backtrace}"
-      raise e
-    end
+    index resource
+  rescue => e
+    @error_count += 1
+    @druids_failed_to_ix << resource.druid
+    logger.error "Failed to index item #{resource.druid}: #{e.message} #{e.backtrace}"
+    raise e
   end
 
   def index(resource)
@@ -123,7 +121,7 @@ class Indexer < GDor::Indexer
   #  and check for a purl in the collection record
   def num_found_in_solr(fqs)
     params = { fl: 'id', rows: 1000 }
-    params[:fq] = fqs.map { |k,v| "#{k}:\"#{v}\"" }
+    params[:fq] = fqs.map { |k, v| "#{k}:\"#{v}\"" }
     params[:start] ||= 0
     resp = solr_client.client.get 'select', params: params
     num_found = resp['response']['numFound'].to_i
@@ -140,7 +138,7 @@ class Indexer < GDor::Indexer
       msgs = []
       msgs << "Successful count (items + coll record indexed w/o error): #{metrics.success_count}"
 
-      harvestdor.resources.select { |x| x.collection? }.each do |collection|
+      harvestdor.resources.select(&:collection?).each do |collection|
         solr_count = num_found_in_solr(collection: collection.bare_druid)
         msgs << "#{config.harvestdor.log_name.chomp('.log')} indexed coll record is: #{collection.druid}\n"
         msgs << "coll title: #{coll_title(collection)}\n"
@@ -150,7 +148,7 @@ class Indexer < GDor::Indexer
       end
 
       msgs << "Error count (items + coll record w any error; may have indexed on retry if it was a timeout): #{metrics.error_count}"
-#      msgs << "Retry count: #{@retries}"  # currently useless due to bug in harvestdor-indexer 0.0.12
+      #      msgs << "Retry count: #{@retries}"  # currently useless due to bug in harvestdor-indexer 0.0.12
       msgs << "Total records processed: #{metrics.total}"
       msgs
     end
@@ -158,15 +156,15 @@ class Indexer < GDor::Indexer
 
   # log details about the results of indexing
   def log_results
-    record_count_msgs.each { |msg|
+    record_count_msgs.each do |msg|
       logger.info msg
-    }
-    logger.info("Avg solr commit time per object (successful): #{(@total_time_to_solr/metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
-    logger.info("Avg solr commit time per object (all): #{(@total_time_to_solr/metrics.total).round(2)} seconds") unless metrics.total == 0
-    logger.info("Avg parse time per object (successful): #{(@total_time_to_parse/metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
-    logger.info("Avg parse time per object (all): #{(@total_time_to_parse/metrics.total).round(2)} seconds") unless metrics.total == 0
-    logger.info("Avg complete index time per object (successful): #{(@total_time/metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
-    logger.info("Avg complete index time per object (all): #{(@total_time/metrics.total).round(2)} seconds") unless metrics.total == 0
+    end
+    logger.info("Avg solr commit time per object (successful): #{(@total_time_to_solr / metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
+    logger.info("Avg solr commit time per object (all): #{(@total_time_to_solr / metrics.total).round(2)} seconds") unless metrics.total == 0
+    logger.info("Avg parse time per object (successful): #{(@total_time_to_parse / metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
+    logger.info("Avg parse time per object (all): #{(@total_time_to_parse / metrics.total).round(2)} seconds") unless metrics.total == 0
+    logger.info("Avg complete index time per object (successful): #{(@total_time / metrics.success_count).round(2)} seconds") unless metrics.success_count == 0
+    logger.info("Avg complete index time per object (all): #{(@total_time / metrics.total).round(2)} seconds") unless metrics.total == 0
   end
 
   def email_report_body
@@ -204,16 +202,16 @@ class Indexer < GDor::Indexer
   end
 
   def send_email(to, opts = {})
-    opts[:server]     ||= 'localhost'
-    opts[:from]       ||= 'gryphondor@stanford.edu'
+    opts[:server] ||= 'localhost'
+    opts[:from] ||= 'gryphondor@stanford.edu'
     opts[:from_alias] ||= 'gryphondor'
-    opts[:subject]    ||= 'default subject'
-    opts[:body]       ||= 'default message body'
+    opts[:subject] ||= 'default subject'
+    opts[:body] ||= 'default message body'
     mail = Mail.new do
-      from    opts[:from]
-      to      to
+      from opts[:from]
+      to to
       subject opts[:subject]
-      body    opts[:body]
+      body opts[:body]
     end
     mail.deliver!
   end
@@ -235,7 +233,7 @@ class Indexer < GDor::Indexer
   protected #-------------------------------------------------------------------
 
   def harvestdor_client
-    @harvestdor_client ||= Harvestdor::Client.new({ config_yml_path: @yml_path })
+    @harvestdor_client ||= Harvestdor::Client.new(config_yml_path: @yml_path)
   end
 
   private #---------------------------------------------------------------------

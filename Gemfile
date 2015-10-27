@@ -18,9 +18,9 @@ group :development do
 end
 
 group :deployment do
-  gem "capistrano", '~> 3.2'
+  gem 'capistrano', '~> 3.2'
   gem 'capistrano-bundler'
-  gem "lyberteam-capistrano-devel"
+  gem 'lyberteam-capistrano-devel'
   gem 'rainbow' # for color output
 end
 
@@ -28,5 +28,5 @@ group :test do
   gem 'rspec'
   gem 'rubocop'
   gem 'rubocop-rspec'
-  gem 'yard'  # for javadoc-y documentation tags
+  gem 'yard' # for javadoc-y documentation tags
 end

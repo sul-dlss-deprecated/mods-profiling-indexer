@@ -30,15 +30,15 @@ end
   EOM
 
   opt :collection,
-    "Index a given collection. Possible values are #{collections}",
-    default: nil,
-    short: 'c',
-    type: String,
-    multi: true
+      "Index a given collection. Possible values are #{collections}",
+      default: nil,
+      short: 'c',
+      type: String,
+      multi: true
   opt :nocommit,
-    "Index the collection but don't commit",
-    default: nil,
-    short: 'n'
+      "Index the collection but don't commit",
+      default: nil,
+      short: 'n'
 end
 
 ###############################################################

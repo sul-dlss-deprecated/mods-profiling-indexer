@@ -28,7 +28,7 @@ module Profiler
     # @return [Hash] Hash representing the Solr document
     def doc_hash
       doc_hash = {
-        :id => @druid
+        id: @druid
       }
 
       xsdb = XmlSolrDocBuilder.new
@@ -36,12 +36,12 @@ module Profiler
       unless xml_hash.empty?
         doc_hash[:all_text_ti] = xml_hash[:mods_sim].first if xml_hash[:mods_sim]
 
-        xml_hash.keys.each { |k|
+        xml_hash.keys.each do |k|
           if k != :mods_sim
             # remove mods_ prefix from field names
             doc_hash[k.to_s.sub(/^mods_/, '').to_sym] = xml_hash[k]
           end
-        }
+        end
       end
 
       doc_hash
@@ -53,7 +53,7 @@ module Profiler
     def smods_rec
       if @mods_rec.nil?
         ng_doc = @harvestdor_client.mods @druid
-        raise "Empty MODS metadata for #{druid}: #{ng_doc.to_xml}" if !ng_doc.root || ng_doc.root.xpath('//text()').empty?
+        fail "Empty MODS metadata for #{druid}: #{ng_doc.to_xml}" if !ng_doc.root || ng_doc.root.xpath('//text()').empty?
         @mods_rec = Stanford::Mods::Record.new
         @mods_rec.from_nk_node(ng_doc.root)
       end

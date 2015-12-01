@@ -38,8 +38,7 @@ class Indexer < GDor::Indexer
       when 'error' then Logger::ERROR
       when 'fatal' then Logger::FATAL
       end
-    level = config_level ? config_level : Logger::INFO
-    harvestdor.logger.level = level
+    harvestdor.logger.level = config_level ? config_level : Logger::INFO
     harvestdor.logger
   end
 

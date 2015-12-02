@@ -77,7 +77,7 @@ RSpec.describe Indexer do
 
       @indexer.harvest_and_index
     end
-    it 'indexs each resource' do
+    it 'indexes each resource' do
       allow(@indexer).to receive(:harvestdor).and_return(Class.new do
         def initialize(*items)
           @items = items

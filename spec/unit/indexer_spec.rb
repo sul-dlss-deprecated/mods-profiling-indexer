@@ -16,9 +16,9 @@ RSpec.describe Indexer do
   end
   before(:each) do
     @indexer = described_class.new(@config_yml_path) do |config|
-      config.whitelist = ['druid:ms016pb9280']
+      config.whitelist = ['druid:xf112dv1419']
+      config.dor_fetcher.skip_heartbeat = true
     end
-    allow(@indexer.solr_client).to receive(:add)
   end
 
   let :resource do
@@ -42,6 +42,13 @@ RSpec.describe Indexer do
     allow(r).to receive(:identity_md_obj_label).and_return ''
     allow(r).to receive(:collection?).and_return true
     r
+  end
+
+  let(:dor_fetcher_client) do
+    dfc = double("dor_fetcher_client")
+    allow(dfc).to receive(:get_collection)
+    allow(dfc).to receive(:druid_array).and_return([])
+    dfc
   end
 
   context 'logging' do
@@ -70,6 +77,7 @@ RSpec.describe Indexer do
       allow(@indexer).to receive(:solr_client).and_return(double(commit!: nil))
       allow(@indexer).to receive(:log_results)
       allow(@indexer).to receive(:email_results)
+      allow(@indexer.harvestdor).to receive(:dor_fetcher_client).and_return(dor_fetcher_client)
     end
     it 'logs and email results' do
       expect(@indexer).to receive(:log_results)
@@ -92,8 +100,8 @@ RSpec.describe Indexer do
         end
       end.new(collection, resource))
 
-      expect(@indexer).to receive(:index).with(collection)
-      expect(@indexer).to receive(:index).with(resource)
+      expect(@indexer).to receive(:index).with(collection, 1, 1)
+      expect(@indexer).to receive(:index).with(resource, 1, 2)
 
       @indexer.harvest_and_index
     end
@@ -107,6 +115,62 @@ RSpec.describe Indexer do
     end
   end
 
+  describe '#estimated_num_to_index' do
+    # need real druids for purl page lookup to determine if coll
+    bare_item_druid = 'pk276ym2584'
+    item_druid = "druid:#{bare_item_druid}"
+    context 'item rec druids' do
+      it '1 for a single item druid' do
+        ixer = described_class.new(@config_yml_path) do |config|
+          config.whitelist = [item_druid]
+        end
+        expect(ixer.estimated_num_to_index).to eq 1
+      end
+      it 'gets count for multiple item druids' do
+        ixer = described_class.new(@config_yml_path) do |config|
+          config.whitelist = [item_druid, 'druid:ym671kq4224']
+        end
+        expect(ixer.estimated_num_to_index).to eq 2
+      end
+    end
+    context 'coll rec druids' do
+      # need real druids for purl page lookup to determine if coll
+      bare_coll_druid = 'xf112dv1419'
+      coll_druid = "druid:#{bare_coll_druid}"
+      bare_coll_druid_2 = 'vr013gg9930'
+      before(:each) do
+        @dor_fetcher_client = double
+        expect(@dor_fetcher_client).to receive(:get_collection).with(bare_coll_druid, {})
+        expect(@dor_fetcher_client).to receive(:druid_array).and_return ['druid:aa111bb2222', 'druid:aa222bb3333']
+      end
+
+      it "includes coll rec and coll's items in the coll" do
+        ixer = described_class.new(@config_yml_path) do |config|
+          config.whitelist = [coll_druid]
+        end
+        allow(ixer.harvestdor).to receive(:dor_fetcher_client).and_return(@dor_fetcher_client)
+        # note that this is only counting coll rec once
+        expect(ixer.estimated_num_to_index).to eq 3
+      end
+      it 'gets counts for multiple colleciton druids' do
+        expect(@dor_fetcher_client).to receive(:get_collection).with(bare_coll_druid_2, {})
+        expect(@dor_fetcher_client).to receive(:druid_array).and_return ['druid:oo111ii2222']
+        ixer = described_class.new(@config_yml_path) do |config|
+          config.whitelist = [coll_druid, "druid:#{bare_coll_druid_2}"]
+        end
+        allow(ixer.harvestdor).to receive(:dor_fetcher_client).and_return(@dor_fetcher_client)
+        expect(ixer.estimated_num_to_index).to eq 5
+      end
+      it 'deals with mix of coll and item druids' do
+        ixer = described_class.new(@config_yml_path) do |config|
+          config.whitelist = [coll_druid, item_druid]
+        end
+        allow(ixer.harvestdor).to receive(:dor_fetcher_client).and_return(@dor_fetcher_client)
+        expect(ixer.estimated_num_to_index).to eq 4
+      end
+    end
+  end
+
   describe '#index' do
     it 'indexs other resources as items' do
       expect(@indexer).to receive(:solr_document).with(resource)
@@ -115,8 +179,8 @@ RSpec.describe Indexer do
   end
 
   describe '#index_with_exception_handling' do
-    it 'capture,s log, and re-raise any exception thrown by the indexing process' do
-      expect(@indexer).to receive(:index).with(resource).and_raise 'xyz'
+    it 'captures log, and re-raise any exception thrown by the indexing process' do
+      expect(@indexer).to receive(:index).with(resource, '?', '?').and_raise 'xyz'
       expect(@indexer.logger).to receive(:error)
       expect { @indexer.index_with_exception_handling(resource) }.to raise_error RuntimeError
       expect(@indexer.druids_failed_to_ix).to include resource.druid

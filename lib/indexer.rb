@@ -61,8 +61,13 @@ class Indexer < GDor::Indexer
     start_time = Time.now.getlocal
     logger.info("Started harvest_and_index at #{start_time}")
 
-    harvestdor.each_resource(in_threads: 1) do |resource|
-      index_with_exception_handling resource
+    logger.info("Will index est. #{estimated_num_to_index} resources")
+
+    # Note:  harvestdor.each_resource is smart enough to use Enumeraton
+    count = 1
+    harvestdor.each_resource(in_threads: 1) do |res|
+      index_with_exception_handling(res, estimated_num_to_index, count)
+      count += 1
     end
 
     unless nocommit
@@ -81,8 +86,23 @@ class Indexer < GDor::Indexer
     email_results
   end
 
-  def index_with_exception_handling(resource)
-    index resource
+  # Computed from the whitelist of druids, where the druids may be for collection or item objects
+  def estimated_num_to_index
+    @estimated_num_to_index ||= begin
+      est_num_to_index = 0
+      @harvestdor.druids.each do |druid|
+        res = Harvestdor::Indexer::Resource.new(@harvestdor, druid)
+        est_num_to_index += res.items.size + 1
+      end
+      est_num_to_index
+    end
+  end
+
+  # @param [Harvestdor::Indexer::Resource] resource
+  # @param [String] est_coll_size the size of the collection
+  # @param [String] ix the index of this document (nth to be indexed)
+  def index_with_exception_handling(resource, est_coll_size = '?', ix = '?')
+    index(resource, est_coll_size, ix)
   rescue => e
     @error_count += 1
     @druids_failed_to_ix << resource.druid

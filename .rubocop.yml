@@ -10,8 +10,7 @@ Style/EmptyLinesAroundClassBody:
 
 # shut hound up (stylistic diff w rubocop version?)
 Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: single_quotes
+  Enabled: false
 
 Style/TrailingBlankLines:
   Enabled: false

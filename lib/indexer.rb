@@ -90,17 +90,23 @@ class Indexer < GDor::Indexer
     raise e
   end
 
-  def index(resource)
+  # @param [Harvestdor::Indexer::Resource] resource
+  # @param [String] coll_size the size of the collection
+  # @param [String] ix the index of this document (nth to be indexed)
+  def index(resource, est_coll_size = '?', ix = '?')
     doc_hash = solr_document resource
-    run_hook :before_index, resource, doc_hash
-    solr_client.add(doc_hash)
+    # note: a collection resource won't have a solr_document
+    if doc_hash
+      run_hook :before_index, resource, doc_hash
+      solr_client.add(doc_hash, est_coll_size, ix)
+    end
   end
 
   # Create a Solr doc, as a Hash, to be added to the SearchWorks Solr index.
-  # Solr doc contents are based on the mods, contentMetadata, etc. for the druid
-  # @param [String] druid, e.g. ab123cd4567
+  # Solr doc contents are based on the mods, contentMetadata, etc. for the resource's druid
+  # @param [Resoure] resource
   # @param [Stanford::Mods::Record] MODS metadata as a Stanford::Mods::Record object
-  # @param [Hash] Hash representing the Solr document
+  # @return [Hash] Hash representing the Solr document, or nil if resource is a collection
   def solr_document(resource)
     unless resource.collection?
       sdb = Profiler::SolrDocBuilder.new(resource.bare_druid, harvestdor_client, logger)
@@ -110,10 +116,6 @@ class Indexer < GDor::Indexer
       # add things from Indexer level class (info kept here for caching purposes)
       doc_hash
     end
-  end
-
-  def resource(druid)
-    Harvestdor::Indexer::Resource.new harvestdor, druid
   end
 
   # count the number of records in solr for this collection (and the collection record itself)

@@ -7,7 +7,7 @@ whitelist: ['druid:ms016pb9280']
 
 # the severity level of messages to be logged.  Valid values are debug, info, warn, error, fatal
 # default: debug
-#log_level: info
+log_level: info
 
 harvestdor:
   # log_name: name of log file  (default: STDERR per harvestdor-indexer)

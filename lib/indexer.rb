@@ -165,7 +165,7 @@ class Indexer < GDor::Indexer
         msgs << "coll title: #{coll_title(collection)}\n"
         msgs << "Solr query for items: #{config[:solr][:url]}/select?fq=collection:#{collection.druid}&fl=id,title_245a_display\n"
         msgs << "Records verified in solr for collection #{collection.druid} (items + coll record): #{num_found_in_solr collection: collection.bare_druid}"
-        msgs << "WARNING: Expected #{collection.druid} to contain #{collection.items.length} items, but only found #{solr_count}."
+        msgs << "WARNING: Expected #{collection.druid} to contain #{collection.items.size} items, but only found #{solr_count}."
       end
 
       msgs << "Error count (items + coll record w any error; may have indexed on retry if it was a timeout): #{metrics.error_count}"

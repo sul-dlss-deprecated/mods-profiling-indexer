@@ -7,6 +7,7 @@ gem 'rsolr'
 gem 'trollop'
 gem 'stanford-mods'
 gem 'gdor-indexer'
+gem 'net-http-persistent', '~> 2' # 3.x breaks faraday integration
 
 # documentation
 group :doc do
@@ -20,7 +21,7 @@ end
 group :deployment do
   gem 'capistrano', '~> 3.2'
   gem 'capistrano-bundler'
-  gem 'lyberteam-capistrano-devel'
+  gem 'dlss-capistrano'
   gem 'rainbow' # for color output
 end
 

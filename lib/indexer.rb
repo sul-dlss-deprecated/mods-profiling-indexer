@@ -21,7 +21,7 @@ class Indexer < GDor::Indexer
     @total_time_to_parse = 0
     @retries = 0
     @druids_failed_to_ix = []
-    @validation_messages = []
+    @validation_messages = StringIO.new
     @config ||= Confstruct::Configuration.new options
     @config.configure(YAML.load_file(yml_path)) if yml_path && File.exist?(yml_path)
     config.configure options
@@ -202,7 +202,7 @@ class Indexer < GDor::Indexer
     body += "full log is at gdor_indexer/shared/#{config.harvestdor.log_dir}/#{config.harvestdor.log_name} on #{Socket.gethostname}"
     body += "\n"
 
-    body + @validation_messages.join("\n") + "\n"
+    body + @validation_messages.to_s + "\n"
   end
 
   # email the results of indexing if we are on one of the harvestdor boxes

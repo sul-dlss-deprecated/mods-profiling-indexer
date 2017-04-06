@@ -1,58 +1,61 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.5)
+    activesupport (5.0.2)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (~> 0.7)
-      json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    ast (2.1.0)
-    astrolabe (1.3.1)
-      parser (~> 2.2)
-    builder (3.2.2)
-    bundler-audit (0.4.0)
+    airbrussh (1.1.2)
+      sshkit (>= 1.6.1, != 1.7.0)
+    ast (2.3.0)
+    builder (3.2.3)
+    bundler-audit (0.5.0)
       bundler (~> 1.2)
       thor (~> 0.18)
-    byebug (5.0.0)
-      columnize (= 0.9.0)
-    capistrano (3.4.0)
+    byebug (9.0.6)
+    capistrano (3.8.0)
+      airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
-      sshkit (~> 1.3)
-    capistrano-bundle_audit (0.0.5)
-      bundler-audit
+      sshkit (>= 1.9.0)
+    capistrano-bundle_audit (0.2.1)
+      bundler-audit (~> 0.5)
       capistrano (~> 3.0)
-    capistrano-bundler (1.1.4)
+    capistrano-bundler (1.2.0)
       capistrano (~> 3.1)
       sshkit (~> 1.2)
     capistrano-one_time_key (0.0.1)
       capistrano (~> 3.0)
-    capistrano-releaseboard (0.0.1)
-      faraday
-    coderay (1.1.0)
-    colorize (0.7.7)
-    columnize (0.9.0)
+    capistrano-shared_configs (0.1.2)
+    coderay (1.1.1)
+    concurrent-ruby (1.0.5)
     confstruct (1.0.2)
       hashie (~> 3.3)
-    daemons (1.2.3)
-    diff-lcs (1.2.5)
+    diff-lcs (1.3)
+    dlss-capistrano (3.4.1)
+      capistrano (~> 3.0)
+      capistrano-bundle_audit (>= 0.1.0)
+      capistrano-one_time_key
+      capistrano-shared_configs
     dor-fetcher (1.0.5)
-    faraday (0.9.2)
+    faraday (0.12.0.1)
       multipart-post (>= 1.2, < 3)
-    gdor-indexer (0.3.0)
+    gdor-indexer (0.8.0)
       activesupport
       harvestdor-indexer
       hooks
       mail
       nokogiri
       rsolr
-      stanford-mods
+      stanford-mods (~> 2.2, >= 2.2.1)
       trollop
-    harvestdor (0.2.0)
+    harvestdor (0.3.1)
       confstruct
+      faraday
+      net-http-persistent
       nokogiri
-    harvestdor-indexer (2.3.1)
+    harvestdor-indexer (2.4.0)
       activesupport
       confstruct
       dor-fetcher (= 1.0.5)
@@ -61,97 +64,93 @@ GEM
       retries
       rsolr
       stanford-mods
-    hashie (3.4.3)
+    hashie (3.5.5)
     hooks (0.4.1)
       uber (~> 0.0.14)
-    i18n (0.7.0)
-    iso-639 (0.2.5)
-    json (1.8.3)
-    lyberteam-capistrano-devel (3.2.0)
-      capistrano (~> 3.0)
-      capistrano-bundle_audit (>= 0.0.3)
-      capistrano-one_time_key
-      capistrano-releaseboard
-    mail (2.6.3)
-      mime-types (>= 1.16, < 3)
+    i18n (0.8.1)
+    iso-639 (0.2.8)
+    mail (2.6.4)
+      mime-types (>= 1.16, < 4)
     method_source (0.8.2)
-    mime-types (2.99)
-    mini_portile2 (2.0.0)
-    minitest (5.8.3)
-    mods (2.0.3)
+    mime-types (3.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0521)
+    mini_portile2 (2.1.0)
+    minitest (5.10.1)
+    mods (2.1.0)
       iso-639
       nokogiri
-      nom-xml (~> 0.5.2)
+      nom-xml (~> 0.6.0)
     multipart-post (2.0.0)
+    net-http-persistent (2.9.4)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
-    net-ssh (3.0.1)
-    nokogiri (1.6.7)
-      mini_portile2 (~> 2.0.0.rc2)
-    nom-xml (0.5.4)
+    net-ssh (4.1.0)
+    nokogiri (1.7.1)
+      mini_portile2 (~> 2.1.0)
+    nom-xml (0.6.0)
       activesupport (>= 3.2.18)
       i18n
       nokogiri
-    parallel (1.6.1)
-    parser (2.2.3.0)
-      ast (>= 1.1, < 3.0)
+    parallel (1.11.1)
+    parser (2.4.0.0)
+      ast (~> 2.2)
     powerpack (0.1.1)
-    pry (0.10.3)
+    pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry-byebug (3.2.0)
-      byebug (~> 5.0)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
       pry (~> 0.10)
-    rainbow (2.0.0)
-    rake (10.4.2)
-    rdoc (4.2.0)
+    rainbow (2.2.1)
+    rake (12.0.0)
+    rdoc (5.1.0)
     retries (0.0.5)
-    rsolr (1.0.13)
+    rsolr (1.1.2)
       builder (>= 2.1.2)
-    rspec (3.3.0)
-      rspec-core (~> 3.3.0)
-      rspec-expectations (~> 3.3.0)
-      rspec-mocks (~> 3.3.0)
-    rspec-core (3.3.2)
-      rspec-support (~> 3.3.0)
-    rspec-expectations (3.3.1)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+    rspec-core (3.5.4)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.3.0)
-    rspec-mocks (3.3.2)
+      rspec-support (~> 3.5.0)
+    rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.3.0)
-    rspec-support (3.3.0)
-    rubocop (0.34.2)
-      astrolabe (~> 1.3)
-      parser (>= 2.2.2.5, < 3.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
+    rubocop (0.48.1)
+      parser (>= 2.3.3.1, < 3.0)
       powerpack (~> 0.1)
       rainbow (>= 1.99.1, < 3.0)
-      ruby-progressbar (~> 1.4)
-    rubocop-rspec (1.3.1)
-    ruby-progressbar (1.7.5)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (~> 1.0, >= 1.0.1)
+    rubocop-rspec (1.15.0)
+      rubocop (>= 0.42.0)
+    ruby-progressbar (1.8.1)
     slop (3.6.0)
-    solrizer (3.3.0)
+    solrizer (4.0.0)
       activesupport
-      daemons
       nokogiri
-      stomp
       xml-simple
-    sshkit (1.7.1)
-      colorize (>= 0.7.0)
+    sshkit (1.13.1)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
-    stanford-mods (1.3.0)
-      mods (~> 2.0.2)
-    stomp (1.3.4)
-    thor (0.19.1)
-    thread_safe (0.3.5)
+    stanford-mods (2.4.0)
+      activesupport
+      mods (~> 2.0, >= 2.0.2)
+    thor (0.19.4)
+    thread_safe (0.3.6)
     trollop (2.1.2)
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
+    unicode-display_width (1.1.3)
     xml-simple (1.1.5)
-    yard (0.8.7.6)
+    yard (0.9.8)
 
 PLATFORMS
   ruby
@@ -159,8 +158,9 @@ PLATFORMS
 DEPENDENCIES
   capistrano (~> 3.2)
   capistrano-bundler
+  dlss-capistrano
   gdor-indexer
-  lyberteam-capistrano-devel
+  net-http-persistent (~> 2)
   nokogiri
   pry-byebug
   rainbow
@@ -176,4 +176,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.10.6
+   1.14.4

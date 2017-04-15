@@ -20,7 +20,7 @@ end
 group :deployment do
   gem 'capistrano', '~> 3.2'
   gem 'capistrano-bundler'
-  gem 'lyberteam-capistrano-devel'
+  gem 'dlss-capistrano'
   gem 'rainbow' # for color output
 end
 

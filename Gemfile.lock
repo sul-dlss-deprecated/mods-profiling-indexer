@@ -73,7 +73,7 @@ GEM
       mime-types (>= 1.16, < 3)
     method_source (0.8.2)
     mime-types (2.99)
-    mini_portile2 (2.0.0)
+    mini_portile2 (2.3.0)
     minitest (5.8.3)
     mods (2.0.3)
       iso-639
@@ -82,8 +82,8 @@ GEM
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (3.0.1)
-    nokogiri (1.6.7)
-      mini_portile2 (~> 2.0.0.rc2)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
     nom-xml (0.5.4)
       activesupport (>= 3.2.18)
       i18n
@@ -101,7 +101,7 @@ GEM
       pry (~> 0.10)
     rainbow (2.0.0)
     rake (10.4.2)
-    rdoc (4.2.0)
+    rdoc (5.1.0)
     retries (0.0.5)
     rsolr (1.0.13)
       builder (>= 2.1.2)
@@ -172,4 +172,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.14.6
+   1.15.4
